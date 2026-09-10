@@ -1,0 +1,37 @@
+name: 🚀 Deal Bot Cloud Runner (무인 핫딜 알림기)
+
+on:
+  schedule:
+    # 한국 시간(KST) 기준 피크타임(오전 8시 ~ 밤 12시) 동안 20분마다 자동 실행
+    # (새벽 취침 시간대 01:00 ~ 07:00 제외하여 깃허브 무료 2,000분 쿼터 완벽 절약)
+    # UTC 기준: 23:00 ~ 15:00 (KST 08:00 ~ 24:00)
+    - cron: '*/20 23,0-15 * * *'
+  workflow_dispatch: # 깃허브 웹 화면에서 [Run workflow] 버튼 클릭 시 즉시 1회 실행
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 2. 파이썬 환경 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 3. 필수 패키지 설치
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: 4. 핫딜 감시 및 텔레그램 발송 실행
+        run: |
+          python main.py --once
+
+      - name: 5. 발송 기록(sent_deals.json) 저장소에 자동 저장
+        run: |
+          git config --global user.name "deal-bot-cloud"
+          git config --global user.email "bot@dealbot.local"
+          git add sent_deals.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 [자동기록] 핫딜 발송 히스토리 갱신" && git push)

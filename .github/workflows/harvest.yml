@@ -1,0 +1,36 @@
+name: 🔄 Daily Threads Hooks Harvester
+
+on:
+  schedule:
+    # 매일 자정(KST 기준 오전 9시)에 1회 자동 실행
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 깃허브 웹에서 수동으로 [Run workflow] 누르면 즉시 실행
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 파이썬 셋업
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 의존성 패키지 및 브라우저 설치
+        run: |
+          pip install playwright requests beautifulsoup4
+          playwright install --with-deps chromium
+
+      - name: 쓰레드 벤치마킹 데이터 수집 실행
+        run: |
+          python harvest_threads.py
+
+      - name: 변경된 족보 데이터(harvested_hooks.json) 자동 깃 커밋 & 푸시
+        run: |
+          git config --global user.name "deal-bot-learner"
+          git config --global user.email "bot@dealbot.local"
+          git add harvested_hooks.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 [자동학습] 최신 쓰레드 후킹 족보 업데이트" && git push)
