@@ -13,6 +13,42 @@ HEADERS = {
     'Referer': 'https://www.google.com/'
 }
 
+# 쿠팡 파트너스 수익화가 불가능한 비실물/금융/통신 키워드 블랙리스트
+NON_MONETIZABLE_KEYWORDS = [
+    # 통신 / 알뜰폰 / 요금제
+    '알뜰폰', '요금제', '유심', 'esim', '통신사', '번호이동', '기기변경', '회선', '데이터무제한',
+    'sk7모바일', 'ktm모바일', 'u+알뜰', '헬로모바일', '아이즈모바일', '시월모바일', '모빙',
+    '이지모바일', '티플러스', '프리티', '에르엘', '여유텔레콤', '인스모바일', '선불유심',
+    
+    # 상품권 / 머니 / 포인트 / 페이 / 캐시
+    '상품권', '해피머니', '컬쳐랜드', '도서문화상품권', '기프티콘', 'e쿠폰', '이쿠폰', '금액권',
+    '네이버페이', '토스포인트', '엘포인트', '머니트리', '캐시', '포인트', '적립', '페이백',
+    '온누리상품권', '문화상품권', '구글기프트', '구글플레이',
+    
+    # 금융 / 렌탈 / 부동산 / 단순 이벤트
+    '렌탈', '청약', '대출', '적금', '예금', '카드발급', '청구할인', '출석체크', '출첵', '퀴즈', '설문', '응모'
+]
+
+NON_MONETIZABLE_DOMAINS = [
+    'siwolmobile.com', 'eyes.co.kr', 'tplusmobile.me', 'freet.co.kr', 'mobing.co.kr',
+    'uplussave.com', 'ktmmobile.com', 'sk7mobile.com', 'insmobile.co.kr', 'yeoyou.co.kr',
+    'eyagi.co.kr', 'annextele.com', 'smartelmobile.com'
+]
+
+def is_monetizable_deal(title: str, url: str = "") -> tuple[bool, str]:
+    """쿠팡 파트너스로 수익화가 가능한 실물 쇼핑 딜인지 검증"""
+    title_lower = title.lower()
+    for kw in NON_MONETIZABLE_KEYWORDS:
+        if kw in title_lower:
+            return False, f"비수익 품목 키워드 감지 ({kw})"
+            
+    url_lower = url.lower()
+    for dom in NON_MONETIZABLE_DOMAINS:
+        if dom in url_lower:
+            return False, f"비수익 도메인 감지 ({dom})"
+            
+    return True, "수익화 가능"
+
 def decode_ppomppu_target(redirect_url: str) -> str:
     """뽐뿌 리다이렉트 링크 내부의 base64 타겟 주소 디코딩"""
     try:

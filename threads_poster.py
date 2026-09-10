@@ -31,6 +31,29 @@ def validate_threads_credentials() -> dict:
     except Exception as e:
         return {"valid": False, "error": str(e)}
 
+def _wait_for_container_ready(creation_id: str, max_wait: int = 15) -> bool:
+    """컨테이너 상태가 FINISHED가 될 때까지 대기 (최대 max_wait초)"""
+    url = f"{GRAPH_API_BASE}/{creation_id}"
+    params = {
+        "fields": "status,error_message",
+        "access_token": THREADS_ACCESS_TOKEN
+    }
+    start = time.time()
+    while time.time() - start < max_wait:
+        try:
+            res = requests.get(url, params=params, timeout=5)
+            data = res.json()
+            status = data.get("status")
+            if status == "FINISHED":
+                return True
+            elif status == "ERROR":
+                print(f"    [Threads Container Error] {data.get('error_message')}")
+                return False
+        except Exception:
+            pass
+        time.sleep(2)
+    return True
+
 def _create_container(text: str, image_url: str = None, reply_to_id: str = None) -> str | None:
     """미디어 또는 텍스트 컨테이너 생성 (1단계)"""
     url = f"{GRAPH_API_BASE}/{THREADS_USER_ID}/threads"
@@ -82,7 +105,7 @@ def post_to_threads(root_text: str, reply_text: str = None, image_url: str = Non
     """
     스레드(Threads) 2단 분리 자동 포스팅:
     1) 본문 (Root Post): 추천 피드 노출을 위해 링크 없이 발행
-    2) 첫 댓글 (Reply Post): 구매 링크 및 파트너스 문구 발행
+    2) 첫 댓글 (Reply Post): 구매 링크 및 파트너스 문구 발행 (재시도 및 인덱싱 대기 보강)
     """
     if not is_threads_configured():
         # 토큰 미설정 시 안전한 Dry-run 안내
@@ -99,9 +122,8 @@ def post_to_threads(root_text: str, reply_text: str = None, image_url: str = Non
     if not root_creation_id:
         return {"success": False, "error": "본문 컨테이너 생성 실패"}
         
-    # 2. 안전 대기 (텍스트: 3초, 이미지: 5초)
-    wait_sec = 5 if image_url else 3
-    time.sleep(wait_sec)
+    # 2. 컨테이너 준비 대기
+    _wait_for_container_ready(root_creation_id, max_wait=10 if image_url else 5)
     
     # 3. 본문 발행
     root_post_id = _publish_container(root_creation_id)
@@ -110,14 +132,28 @@ def post_to_threads(root_text: str, reply_text: str = None, image_url: str = Non
         
     print(f"    -> [Threads] 본문 발행 성공! (Post ID: {root_post_id})")
     
-    # 4. 첫 번째 댓글(답글)로 구매 링크 발행
+    # 4. 첫 번째 댓글(답글)로 구매 링크 발행 (재시도 로직으로 누락 원천 차단)
     if reply_text:
-        time.sleep(2)  # 답글 간 안전 딜레이
+        time.sleep(3.5)  # 본문 서버 인덱싱 대기 (최소 3.5초)
         print("    🧵 [Threads] 첫 번째 답글(구매 링크) 작성 중...")
-        reply_creation_id = _create_container(text=reply_text, reply_to_id=root_post_id)
+        
+        reply_creation_id = None
+        for attempt in range(1, 4):
+            reply_creation_id = _create_container(text=reply_text, reply_to_id=root_post_id)
+            if reply_creation_id:
+                break
+            print(f"       [재시도 {attempt}/3] 본문 인덱싱 대기 후 답글 재시도...")
+            time.sleep(3)
+            
         if reply_creation_id:
-            time.sleep(2)
-            reply_post_id = _publish_container(reply_creation_id)
+            _wait_for_container_ready(reply_creation_id, max_wait=6)
+            reply_post_id = None
+            for p_attempt in range(1, 3):
+                reply_post_id = _publish_container(reply_creation_id)
+                if reply_post_id:
+                    break
+                time.sleep(2)
+                
             if reply_post_id:
                 print(f"    -> [Threads] 구매 링크 답글 발행 성공! (Reply ID: {reply_post_id})")
             else:

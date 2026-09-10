@@ -356,7 +356,7 @@ def format_threads_post(title: str, product_link: str) -> tuple[str, str]:
     root_content = "\n".join(root_lines)
     
     reply_lines = [
-        f"👉 구매 좌표 바로가기:\n{product_link}",
+        f"👉 실시간 최저가 & 구매 좌표:\n{product_link}",
         "",
         "※ 파트너스 활동의 일환으로 수수료를 제공받을 수 있습니다."
     ]
