@@ -28,7 +28,7 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
         pass  # 헬스체크 핑 콘솔 로그 억제
 
 def start_health_check_server():
-    port = int(os.getenv("PORT", "10000"))
+    port = int(os.getenv("PORT", "8000"))
     try:
         server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
         print(f"🌐 [클라우드 헬스체크] 포트 {port}에서 정상 대기 중...")
