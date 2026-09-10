@@ -220,3 +220,74 @@ def format_post(title: str, product_link: str) -> str:
     ]
     
     return "\n".join(lines)
+
+def format_threads_post(title: str, product_link: str) -> tuple[str, str]:
+    """
+    스레드(Threads) 알고리즘 최적화 2단 분리 포스트 포맷터:
+    1) root_content (본문):
+       - 외부 링크를 완전히 제외하여 알고리즘 추천 피드 노출(Reach) 극대화
+       - 후킹 질문 + 가격/할인율 + 체감가 분석 + 경쟁사 비교
+    2) reply_content (첫 번째 댓글):
+       - 본문 바로 아래 첫 댓글로 구매 링크 및 공정위 파트너스 문구 작성
+    """
+    clean_name = clean_title_for_display(title)
+    price, qty, unit = parse_price_and_quantity(title)
+    
+    # 1. 후킹 질문
+    hooks = [
+        "편의점에서 1+1 보면 못 참는 사람? 하나당 가격 계산하는 사람 있어? 이번에 엄청 할인한 상품 나왔어!! 🔥",
+        "마트 가면 개당 얼마인지 꼭 계산해 보는 사람 손? 🙋 이번에 진짜 역대급 단가로 풀린 거 있어!!",
+        "어차피 매번 사 먹고 쓰는 건데 제값 주고 사면 아깝잖아? 이번에 할인 제대로 들어간 거 나왔어!! ✨"
+    ]
+    hook_text = random.choice(hooks)
+    
+    # 2. 가격 및 체감가 (스레드는 HTML 태그를 지원하지 않으므로 깔끔한 텍스트로 구성)
+    if price:
+        raw_est = price * 1.4
+        estimated_original = int((raw_est + 499) // 500 * 500)
+        if estimated_original <= price:
+            estimated_original = price + 1000
+        discount_rate = int((estimated_original - price) / estimated_original * 100)
+        
+        price_line = f"💰 {price:,}원 (정상가 {estimated_original:,}원 대비 {discount_rate}% 할인)"
+        
+        if qty and qty > 1:
+            my_each = price // qty
+            use_unit = unit if unit else "개"
+            unit_label = "100g에" if use_unit == "100g" else ("1봉지에" if use_unit in ['봉', '봉지'] else f"1{use_unit}에")
+            my_price_line = f"👉 체감가는 {unit_label} {my_each:,}원이야!!"
+            
+            comp_name, comp_price, comp_unit = find_competitor_info(title, use_unit, my_each)
+            if comp_price > 0:
+                comp_unit_label = "100g에" if comp_unit == "100g" else ("1봉지에" if comp_unit in ['봉', '봉지'] else f"1{comp_unit}에")
+                comp_price_line = f"⚖️ 참고로 {comp_name}은 {comp_unit_label} {comp_price:,}원이야!"
+            else:
+                comp_price_line = "⚖️ 다른 브랜드는 보통 이것보다 30% 이상 비싸!"
+        else:
+            my_price_line = f"👉 {clean_name} 역대급 특가로 나왔어!!"
+            comp_price_line = "⚖️ 시중에서 사려면 최소 1.5배는 더 줘야 해!"
+    else:
+        price_line = f"📦 {clean_name}"
+        my_price_line = "👉 지금 판매처에서 역대급 쿠폰 할인 중이야!!"
+        comp_price_line = "⚖️ 금방 품절될 수 있으니 확인해 봐!"
+        
+    root_lines = [
+        hook_text,
+        "",
+        price_line,
+        my_price_line,
+        comp_price_line,
+        "",
+        "🔗 구매 링크는 첫 번째 댓글에 남겨둘게! 👇"
+    ]
+    root_content = "\n".join(root_lines)
+    
+    reply_lines = [
+        f"👉 특가 구매 링크 바로가기:\n{product_link}",
+        "",
+        "※ 파트너스 활동의 일환으로 수수료를 제공받을 수 있습니다."
+    ]
+    reply_content = "\n".join(reply_lines)
+    
+    return root_content, reply_content
+

@@ -10,8 +10,10 @@ from config import CHECK_INTERVAL_SECONDS, KEYWORD_FILTERS
 from history import load_sent_deals, save_sent_deals
 from scraper import fetch_latest_deals, fetch_direct_product_link
 from link_helper import get_product_link
-from copywriter import format_post
+from copywriter import format_post, format_threads_post
 from notifier import send_deal_alert
+from threads_poster import post_to_threads, is_threads_configured, validate_threads_credentials
+
 
 # 윈도우 콘솔 UTF-8 인코딩 보장
 if hasattr(sys.stdout, 'reconfigure'):
@@ -57,6 +59,11 @@ def run_pipeline(sent_deals: set) -> int:
         
         # 6. 텔레그램 알림 발송
         success = send_deal_alert(deal, formatted_message)
+        
+        # 7. 스레드(Threads) 2단 분리 자동 포스팅 (본문 노출 극대화 + 첫 댓글 링크)
+        root_text, reply_text = format_threads_post(deal['title'], product_link)
+        post_to_threads(root_text, reply_text, image_url=deal.get('thumb_url'))
+        
         if success:
             sent_deals.add(deal_id)
             new_sent_count += 1
@@ -76,8 +83,32 @@ def run_pipeline(sent_deals: set) -> int:
 def main():
     parser = argparse.ArgumentParser(description="실시간 핫딜 알림 봇")
     parser.add_argument("--once", action="store_true", help="1회만 실행하고 종료")
-    parser.add_argument("--test", action="store_true", help="가장 최신 핫딜 1건 강제 전송 테스트")
+    parser.add_argument("--test", action="store_true", help="가장 최신 핫딜 1건 강제 전송 테스트 (텔레그램 + 스레드)")
+    parser.add_argument("--threads-test", action="store_true", help="최신 핫딜 1건 스레드(Threads) 포스팅만 단독 테스트")
+    parser.add_argument("--verify-threads", action="store_true", help="Threads API 토큰 및 계정 자격증명 유효성 검사")
     args = parser.parse_args()
+
+    # 1. 스레드 토큰 검증 옵션
+    if args.verify_threads:
+        print("🔍 [Threads] 계정 자격증명 검증 중...")
+        res = validate_threads_credentials()
+        if res.get("valid"):
+            print(f"  ✅ 인증 성공! 유저네임: @{res.get('username')} (ID: {res.get('userId')})")
+        else:
+            print(f"  ❌ 인증 실패: {res.get('error')}")
+        return
+
+    # 2. 스레드 단독 테스트 옵션
+    if args.threads_test:
+        print("🧵 [테스트 모드] 최신 핫딜 1건으로 스레드 포스팅을 테스트합니다.")
+        deals = fetch_latest_deals()
+        if deals:
+            d = deals[0]
+            direct = fetch_direct_product_link(d['ppom_url'])
+            link = get_product_link(direct, d['title'])
+            root_text, reply_text = format_threads_post(d['title'], link)
+            post_to_threads(root_text, reply_text, image_url=d.get('thumb_url'))
+        return
 
     print("==================================================")
     print("🚀 실시간 핫딜 알림 봇 (deal-bot) 가동")
@@ -88,7 +119,7 @@ def main():
     print(f"기존 발송 완료된 핫딜 기록: {len(sent_deals)}건 로드됨\n")
     
     if args.test:
-        print("[테스트 모드] 최신 핫딜 1건을 즉시 발송합니다.")
+        print("[테스트 모드] 최신 핫딜 1건을 즉시 발송합니다 (텔레그램 + 스레드).")
         deals = fetch_latest_deals()
         if deals:
             d = deals[0]
@@ -96,6 +127,8 @@ def main():
             link = get_product_link(direct, d['title'])
             msg = format_post(d['title'], link)
             send_deal_alert(d, msg)
+            root_text, reply_text = format_threads_post(d['title'], link)
+            post_to_threads(root_text, reply_text, image_url=d.get('thumb_url'))
             print(f"  -> 테스트 발송 완료: {d['title']}")
         return
 

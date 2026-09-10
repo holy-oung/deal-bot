@@ -1,0 +1,128 @@
+# threads_poster.py
+# Meta 공식 Threads Graph API 기반 자동 포스팅 모듈
+# '딸깍 Threads 공장 Community Edition v1.11.7' 규격 적용
+
+import time
+import requests
+from config import THREADS_ACCESS_TOKEN, THREADS_USER_ID, ENABLE_THREADS_POSTING
+
+GRAPH_API_BASE = "https://graph.threads.net/v1.0"
+
+def is_threads_configured() -> bool:
+    """스레드 API 연동 정보가 설정되어 있는지 확인"""
+    return bool(THREADS_ACCESS_TOKEN and THREADS_USER_ID and ENABLE_THREADS_POSTING)
+
+def validate_threads_credentials() -> dict:
+    """Threads Access Token 및 사용자 ID 유효성 검증"""
+    if not THREADS_ACCESS_TOKEN or not THREADS_USER_ID:
+        return {"valid": False, "error": "THREADS_ACCESS_TOKEN 또는 THREADS_USER_ID가 설정되지 않았습니다."}
+        
+    url = f"{GRAPH_API_BASE}/{THREADS_USER_ID}"
+    params = {
+        "fields": "id,username",
+        "access_token": THREADS_ACCESS_TOKEN
+    }
+    try:
+        res = requests.get(url, params=params, timeout=10)
+        data = res.json()
+        if res.status_code == 200 and "id" in data:
+            return {"valid": True, "username": data.get("username"), "userId": data.get("id")}
+        return {"valid": False, "error": data.get("error", {}).get("message", f"HTTP {res.status_code}")}
+    except Exception as e:
+        return {"valid": False, "error": str(e)}
+
+def _create_container(text: str, image_url: str = None, reply_to_id: str = None) -> str | None:
+    """미디어 또는 텍스트 컨테이너 생성 (1단계)"""
+    url = f"{GRAPH_API_BASE}/{THREADS_USER_ID}/threads"
+    payload = {
+        "access_token": THREADS_ACCESS_TOKEN,
+    }
+    
+    # 이미지 지원 (공개 HTTPS 이미지 주소가 있을 때)
+    if image_url and image_url.startswith("https://"):
+        payload["media_type"] = "IMAGE"
+        payload["image_url"] = image_url
+        if text:
+            payload["text"] = text
+    else:
+        payload["media_type"] = "TEXT"
+        payload["text"] = text
+        
+    if reply_to_id:
+        payload["reply_to_id"] = reply_to_id
+        
+    try:
+        res = requests.post(url, data=payload, timeout=20)
+        data = res.json()
+        if res.status_code == 200 and "id" in data:
+            return data["id"]
+        print(f"    [Threads Error] 컨테이너 생성 실패: {data.get('error', {}).get('message', res.text)}")
+    except Exception as e:
+        print(f"    [Threads Exception] 컨테이너 요청 오류: {e}")
+    return None
+
+def _publish_container(creation_id: str) -> str | None:
+    """생성된 컨테이너 실제 발행 (3단계)"""
+    url = f"{GRAPH_API_BASE}/{THREADS_USER_ID}/threads_publish"
+    payload = {
+        "creation_id": creation_id,
+        "access_token": THREADS_ACCESS_TOKEN
+    }
+    try:
+        res = requests.post(url, data=payload, timeout=20)
+        data = res.json()
+        if res.status_code == 200 and "id" in data:
+            return data["id"]
+        print(f"    [Threads Error] 게시물 발행 실패: {data.get('error', {}).get('message', res.text)}")
+    except Exception as e:
+        print(f"    [Threads Exception] 발행 요청 오류: {e}")
+    return None
+
+def post_to_threads(root_text: str, reply_text: str = None, image_url: str = None) -> dict:
+    """
+    스레드(Threads) 2단 분리 자동 포스팅:
+    1) 본문 (Root Post): 추천 피드 노출을 위해 링크 없이 발행
+    2) 첫 댓글 (Reply Post): 구매 링크 및 파트너스 문구 발행
+    """
+    if not is_threads_configured():
+        # 토큰 미설정 시 안전한 Dry-run 안내
+        print("    ℹ️ [Threads] 토큰 미설정 상태 (Dry-run 모의 발행 성공 처리)")
+        print(f"       [미리보기 본문] {root_text.splitlines()[0]}...")
+        if reply_text:
+            print(f"       [미리보기 댓글] {reply_text.splitlines()[0]}...")
+        return {"success": True, "dry_run": True, "root_id": "dry_run_root_id"}
+
+    print("    🧵 [Threads] 공식 API로 본문 게시 중...")
+    
+    # 1. 본문 컨테이너 생성
+    root_creation_id = _create_container(text=root_text, image_url=image_url)
+    if not root_creation_id:
+        return {"success": False, "error": "본문 컨테이너 생성 실패"}
+        
+    # 2. 안전 대기 (텍스트: 3초, 이미지: 5초)
+    wait_sec = 5 if image_url else 3
+    time.sleep(wait_sec)
+    
+    # 3. 본문 발행
+    root_post_id = _publish_container(root_creation_id)
+    if not root_post_id:
+        return {"success": False, "error": "본문 발행 실패"}
+        
+    print(f"    -> [Threads] 본문 발행 성공! (Post ID: {root_post_id})")
+    
+    # 4. 첫 번째 댓글(답글)로 구매 링크 발행
+    if reply_text:
+        time.sleep(2)  # 답글 간 안전 딜레이
+        print("    🧵 [Threads] 첫 번째 답글(구매 링크) 작성 중...")
+        reply_creation_id = _create_container(text=reply_text, reply_to_id=root_post_id)
+        if reply_creation_id:
+            time.sleep(2)
+            reply_post_id = _publish_container(reply_creation_id)
+            if reply_post_id:
+                print(f"    -> [Threads] 구매 링크 답글 발행 성공! (Reply ID: {reply_post_id})")
+            else:
+                print("    -> [Threads Warning] 구매 링크 답글 발행 실패 (본문은 정상 게시됨)")
+        else:
+            print("    -> [Threads Warning] 구매 링크 답글 컨테이너 생성 실패")
+
+    return {"success": True, "root_id": root_post_id}
