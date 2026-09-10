@@ -1,289 +1,283 @@
 # copywriter.py
-# 쓰레드 감성의 친근한 대화체 + 동품목 경쟁제품 비교 포맷 생성기
+# 숏폼/스레드 모바일 스크롤 최적화 초압축 4대 후킹 믹스 (공감형, 손실회피형, 가격실수형, 실구매자썰형)
 
 import re
 import random
 
-# 동품목 대표 제품들의 기준 시중가 벤치마크 데이터베이스
-COMPETITOR_BENCHMARKS = [
-    {
-        'keywords': ['김', '도시락김'],
-        'unit': '봉지',
-        'competitor': '양반 도시락김',
-        'comp_unit_price': 250
-    },
-    {
-        'keywords': ['칫솔'],
-        'unit': '개',
-        'competitor': '오랄비 일반 칫솔',
-        'comp_unit_price': 1500
-    },
-    {
-        'keywords': ['랩', '매직랩', '크린랩'],
-        'unit': '개',
-        'competitor': '일반 마트 크린랩',
-        'comp_unit_price': 4500
-    },
-    {
-        'keywords': ['라면', '신라면', '진라면', '짜파게티', '너구리'],
-        'unit': '봉지',
-        'competitor': '편의점 신라면',
-        'comp_unit_price': 1000
-    },
-    {
-        'keywords': ['생수', '삼다수', '스파클'],
-        'unit': '병',
-        'competitor': '편의점 삼다수',
-        'comp_unit_price': 1100
-    },
-    {
-        'keywords': ['커피', '카누', '스틱'],
-        'unit': '개',
-        'competitor': '카누 마일드 스틱',
-        'comp_unit_price': 230
-    },
-    {
-        'keywords': ['물티슈'],
-        'unit': '팩',
-        'competitor': '다이소 100매 물티슈',
-        'comp_unit_price': 1200
-    },
-    {
-        'keywords': ['화장지', '휴지', '롤'],
-        'unit': '롤',
-        'competitor': '크리넥스 3겹 화장지',
-        'comp_unit_price': 800
-    },
-    {
-        'keywords': ['햇반', '오뚜기밥', '즉석밥'],
-        'unit': '개',
-        'competitor': '마트 CJ 햇반',
-        'comp_unit_price': 1350
-    },
-    {
-        'keywords': ['만두', '교자'],
-        'unit': '봉지',
-        'competitor': '비비고 왕교자',
-        'comp_unit_price': 4600
-    },
-    {
-        'keywords': ['등심', '한우', '소고기'],
-        'unit': '100g',
-        'competitor': '일반 정육점 1등급 한우',
-        'comp_unit_price': 11000
-    },
-    {
-        'keywords': ['치킨', '너겟', '가라아게'],
-        'unit': '봉지',
-        'competitor': '고메 크리스피 치킨',
-        'comp_unit_price': 7900
-    },
-    {
-        'keywords': ['세제', '액체세제'],
-        'unit': 'L',
-        'competitor': '퍼실 파워젤',
-        'comp_unit_price': 4200
-    },
-    {
-        'keywords': ['밀폐용기', '반찬통'],
-        'unit': '개',
-        'competitor': '일반 락앤락 밀폐용기',
-        'comp_unit_price': 5500
-    }
-]
+# ==========================================
+# 1. 카테고리 정의 및 정밀 키워드 매핑
+# ==========================================
+CATEGORY_KEYWORDS = {
+    'SHOES': [
+        '신발', '운동화', '스니커즈', '러닝화', '런닝화', '트레킹화', '등산화',
+        '슬리퍼', '샌들', '뮬', '로퍼', '구두', '부츠', '워커', '크록스',
+        '조던', '덩크', '단화', '블로퍼', '슈즈', '플랫슈즈'
+    ],
+    'DIGITAL_TECH': [
+        '헤드셋', '이어폰', '에어팟', '버즈', '헤드폰', '키보드', '마우스', '모니터',
+        '노트북', '랩탑', '맥북', '태블릿', '아이패드', '갤럭시탭', '스마트폰', '아이폰',
+        '갤럭시', '충전기', '보조배터리', '케이블', '거치대', '그래픽카드', '글카',
+        'rtx', 'cpu', 'ssd', 'ram', '데스크탑', '스마트워치', '애플워치', '갤럭시워치',
+        '워치', '스피커', '사운드바', '닌텐도', '플스', '플레이스테이션', 'xbox',
+        '독거미', '마이크', '공유기', '게이밍'
+    ],
+    'HOME_APPLIANCE': [
+        '청소기', '로봇청소기', '공기청정기', '가습기', '제습기', '에어컨', '선풍기',
+        '서큘레이터', '밥솥', '전자레인지', '오븐', '에어프라이어', '식기세척기',
+        '세탁기', '건조기', '헤어드라이어', '드라이기', '면도기', '안마기', 'tv', '티비',
+        '비데', '정수기', '인덕션', '전기포트'
+    ],
+    'BEAUTY': [
+        '화장품', '선크림', '선블록', '선스틱', '수분크림', '보습크림', '앰플', '세럼',
+        '에센스', '스킨', '토너', '로션', '마스크팩', '클렌징', '클렌징폼', '클렌징오일',
+        '립밤', '틴트', '립스틱', '쿠션', '파운데이션', '아이라이너', '마스카라',
+        '핸드크림', '바디로션', '향수'
+    ],
+    'KIDS': [
+        '키즈', '아동', '유아', '주니어', '베이비', '어린이', '기저귀', '젖병',
+        '분유', '이유식', '장난감', '유모차', '카시트'
+    ],
+    'LIVING': [
+        '세제', '세탁세제', '섬유유연제', '주방세제', '퐁퐁', '락스', '화장지', '휴지',
+        '롤휴지', '두루마리', '티슈', '물티슈', '칫솔', '치약', '가글', '샴푸', '린스',
+        '트리트먼트', '바디워시', '비누', '크린랩', '위생랩', '매직랩', '호일', '은박지',
+        '종이호일', '지퍼백', '위생백', '종이컵', '수건', '타월', '밀폐용기', '반찬통',
+        '프라이팬', '후라이팬', '냄비', '건조대', '피죤', '다우니', '퍼실', '리큐', '테크'
+    ],
+    'FOOD_PROCESSED': [
+        '라면', '신라면', '진라면', '짜파게티', '불닭', '너구리', '안성탕면', '비빔면',
+        '즉석밥', '햇반', '오뚜기밥', '만두', '교자', '왕교자', '군만두', '물만두',
+        '피자', '핫도그', '치킨', '너겟', '가라아게', '팝콘', '떡볶이', '밀키트',
+        '전골', '부대찌개', '볶음밥', '스팸', '리챔', '참치캔', '소시지', '비엔나',
+        '카레', '짜장', '도시락김', '조미김', '파스타', '시리얼'
+    ],
+    'FOOD_FRESH': [
+        '한우', '소고기', '돼지고기', '삼겹살', '목살', '항정살', '소곱창', '대창', '막창',
+        '불고기', '갈비', '닭고기', '닭가슴살', '과일', '감귤', '귤', '사과', '포도',
+        '샤인머스캣', '딸기', '수박', '복숭아', '토마토', '참외', '자두', '체리', '망고',
+        '오렌지', '한라봉', '천혜향', '레드향', '김치', '포기김치', '장어', '고등어',
+        '연어', '새우', '굴', '전복', '오징어', '낙지', '문어', '모듬회', '연어회',
+        '백미', '현미', '찹쌀', '햅쌀', '계란', '달걀', '채소', '야채'
+    ],
+    'BEVERAGE_SNACK': [
+        '커피', '원두', '캡슐', '아메리카노', '라떼', '카누', '맥심', '생수', '삼다수',
+        '스파클', '탄산수', '탄산음료', '콜라', '제로콜라', '사이다', '음료수', '주스',
+        '우유', '두유', '에너지드링크', '과자', '스낵', '초콜릿', '캔디', '젤리', '쿠키', '칩'
+    ],
+    'FASHION': [
+        '점퍼', '자켓', '코트', '패딩', '다운', '바람막이', '맨투맨', '후드', '후디',
+        '셔츠', '티셔츠', '니트', '가디건', '팬츠', '바지', '슬랙스', '청바지', '데님',
+        '트레이닝', '조거', '속옷', '팬티', '브라', '양말', '가방', '백팩', '숄더백',
+        '크로스백', '지갑', '벨트', '모자', '볼캡', '원피스', '스커트', '의류'
+    ]
+}
+
+# ==========================================
+# 2. 카테고리별 4대 후킹 스타일 믹스 라이브러리
+# (공감형, 손실회피형, 가격실수형, 실구매자썰형)
+# ==========================================
+SHORT_HOOKS = {
+    'SHOES': [
+        "조금만 오래 걸어도 발바닥 아프고 피로 쉽게 쌓이는 사람 손? 👟",
+        "제발 브랜드 운동화 정가 10만원씩 다 주고 사지 마세요 🫢",
+        "이 스펙 신발이 이 가격에 풀린 건 담당자 실수 아닌가... 👀",
+        "발 편한 데일리 전투화 찾다가 이건 진짜 줍줍각이라 공유함 👟"
+    ],
+    'DIGITAL_TECH': [
+        "게임할 때 선 걸리적거리고 충전 깜빡해서 꺼진 적 다들 있지? 🎧",
+        "비싼 게이밍 장비 거품가 다 주고 사면 진짜 아까움 ⚡",
+        "충전독까지 주는 구성인데 이 가격이면 가격 잘못 올린 듯 🫢",
+        "비싼 브랜드 헤드셋 쓰다가 이거 스펙 보고 현타 왔음... 🎧"
+    ],
+    'KIDS': [
+        "애들은 금방 쑥쑥 커서 옷 제값 다 주고 사면 제일 아까움 👶",
+        "우리 아이 편하게 입힐 데일리 등원룩/외출복 찾는다면 🍼",
+        "놀이터용 막 입히는 옷 찾다가 가성비 미쳐서 바로 담음 🧸",
+        "브랜드 키즈 의류가 보세 옷보다 싸게 풀린 거 실화인가 👀"
+    ],
+    'LIVING': [
+        "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
+        "집에 떨어지면 불안해서 박스로 쟁여둬야 마음 편한 필수템 📦",
+        "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼",
+        "생필품은 핫딜 떴을 때 박스 단위로 사두는 게 진짜 돈 버는 거임 ✨"
+    ],
+    'FOOD_PROCESSED': [
+        "퇴근하고 밥 차리기 귀찮을 때 배달비 아끼는 치트키 🍜",
+        "배달앱 켤 때마다 2~3만원씩 깨지는데 이럴 때 냉동실 채워둬야 함 🥟",
+        "출출할 때 바로 꺼내먹는 야식용 비상식량 최저가 떴길래 공유함 😋",
+        "개당 단가 계산해봤더니 편의점 1+1보다 훨씬 싸네요 🔥"
+    ],
+    'FOOD_FRESH': [
+        "요즘 장바구니 물가 무서운데 마트 반값 수준으로 풀린 먹거리 🛒",
+        "외식 한 번 참는 가격으로 온 가족 배부르게 먹는 꿀템 🥩",
+        "고기/과일 정육점 가격 보고 망설였는데 산지직송급 특가 발견 😋",
+        "후기 검증된 신선 먹거리 역대급 단가 떴으니 마트 가지 마세요 🍎"
+    ],
+    'BEVERAGE_SNACK': [
+        "매일 마시는 커피·음료 편의점 가격 아까웠던 사람? ☕",
+        "물·음료 떨어질 때마다 무겁게 들고 오지 말고 박스로 쟁여둘 타이밍 🧊",
+        "탕비실/냉장고 채워둘 음료 단가 계산해보고 바로 긁었음 🧃",
+        "한 캔/한 병에 이 가격이면 편의점 반값도 안 되는 수준 🔥"
+    ],
+    'BEAUTY': [
+        "환절기만 되면 피부 땅기고 건조해서 고민인 사람? 🧴",
+        "올영 세일 때도 이 가격은 안 나왔으니 정가 주지 마세요 💄",
+        "공병 몇 개째 비우는 인생템인데 최저가 떴길래 공유함 ✨",
+        "피부과/올영 상위권인 그 제품 역대급 혜택가 뜸 🌸"
+    ],
+    'HOME_APPLIANCE': [
+        "퇴근 후 집안일 시간 확 줄여주는 삶의 질 상승 가전 🏠",
+        "대기업 비싼 가전 살 필요 없이 실속형으로 뽕 뽑는 템 ⚡",
+        "이 가격에 이 기능이면 진작 살 걸 그랬음... 가성비 종결 🔥"
+    ],
+    'FASHION': [
+        "옷장은 꽉 찼는데 매번 입을 옷 없어서 고민인 사람? 👕",
+        "백화점 브랜드 옷 정가 다 주고 사면 바보 되는 이유 👀",
+        "어디에나 편하게 받쳐 입을 가성비 기본템 찾다가 발견함 ✨"
+    ],
+    'GENERAL': [
+        "살까 말까 고민하면서 장바구니에만 넣어뒀던 분들 주목 👀",
+        "제발 제값 다 주고 사지 마세요! 실시간 최저가 떴습니다 🔥",
+        "담당자가 할인 쿠폰 중복 적용 풀어둔 듯... 실시간 품절 각 ⚡"
+    ]
+}
 
 def clean_title_for_display(title: str) -> str:
-    """쇼핑몰 태그 등을 깔끔하게 정리한 제품명"""
+    """쇼핑몰 태그 및 부가 정보를 깔끔하게 정리한 제품명"""
     t = re.sub(r'\[.*?\]', '', title)
     t = re.sub(r'\(.*?\)', '', t)
+    t = re.sub(r'\s*/\s*(?:무료|무배|유료|배송비.*)$', '', t)
+    t = re.sub(r'\s+', ' ', t)
     return t.strip()
+
+def classify_deal_category(title: str) -> str:
+    """상품명을 분석하여 정밀 카테고리 판별 (태그 제거 후 분석)"""
+    clean_text = clean_title_for_display(title).lower()
+    
+    # 1. 신발 (최우선 매칭)
+    if any(kw in clean_text for kw in CATEGORY_KEYWORDS['SHOES']):
+        return 'SHOES'
+        
+    # 2. 디지털 / 게이밍 기기
+    if any(kw in clean_text for kw in CATEGORY_KEYWORDS['DIGITAL_TECH']):
+        return 'DIGITAL_TECH'
+        
+    # 3. 생활 / 주방가전
+    if any(kw in clean_text for kw in CATEGORY_KEYWORDS['HOME_APPLIANCE']):
+        return 'HOME_APPLIANCE'
+        
+    # 4. 뷰티 / 화장품
+    if any(kw in clean_text for kw in CATEGORY_KEYWORDS['BEAUTY']):
+        return 'BEAUTY'
+        
+    # 5. 키즈 / 육아
+    if any(kw in clean_text for kw in CATEGORY_KEYWORDS['KIDS']):
+        return 'KIDS'
+        
+    # 6. 생활 / 위생용품 (세제, 화장지 등)
+    if any(kw in clean_text for kw in CATEGORY_KEYWORDS['LIVING']):
+        return 'LIVING'
+        
+    # 7. 가공식품 / 만두 / 간편식 / 밀키트
+    if any(kw in clean_text for kw in CATEGORY_KEYWORDS['FOOD_PROCESSED']):
+        return 'FOOD_PROCESSED'
+        
+    # 8. 신선식품 / 정육 / 수산 / 과일
+    if any(kw in clean_text for kw in CATEGORY_KEYWORDS['FOOD_FRESH']):
+        return 'FOOD_FRESH'
+        
+    # 9. 음료 / 간식 / 커피
+    if any(kw in clean_text for kw in CATEGORY_KEYWORDS['BEVERAGE_SNACK']):
+        return 'BEVERAGE_SNACK'
+        
+    # 10. 의류 / 패션
+    if any(kw in clean_text for kw in CATEGORY_KEYWORDS['FASHION']):
+        return 'FASHION'
+        
+    return 'GENERAL'
 
 def parse_price_and_quantity(title: str):
     """제목에서 가격, 수량, 단위 추출"""
     price = None
-    price_match = re.search(r'\(([\d,]+)\s*(?:원)?\s*\/', title)
+    price_match = re.search(r'\(([\d,.]+)\s*(?:원)?\s*\/', title)
     if price_match:
         try:
-            price = int(price_match.group(1).replace(',', ''))
+            raw_p = price_match.group(1).replace(',', '').replace('.', '')
+            price = int(raw_p)
         except ValueError:
             price = None
             
     qty = None
     unit = None
     
-    # g/kg 처리
-    weight_match = re.search(r'(\d+)\s*(kg|g)', title, re.IGNORECASE)
-    if weight_match and not any(k in title for k in ['개', '봉', '팩', '캔']):
-        val = int(weight_match.group(1))
-        unit_str = weight_match.group(2).lower()
-        if unit_str == 'kg':
-            val = val * 1000
-        # 100g 단위로 환산
-        qty = val // 100 if val >= 100 else 1
-        unit = "100g"
-    else:
-        qty_match = re.search(r'(\d+)\s*(개|봉|매|팩|입|캔|병|박스|포|롤|세트)', title)
-        if qty_match:
-            try:
-                qty = int(qty_match.group(1))
-                unit = qty_match.group(2)
-            except ValueError:
-                qty = None
+    qty_matches = re.findall(r'(\d+)\s*(개|봉|봉지|매|팩|입|캔|병|박스|포|롤|세트)', title)
+    if qty_matches:
+        try:
+            qty = sum(int(m[0]) for m in qty_matches)
+            unit = qty_matches[0][1]
+        except ValueError:
+            qty = None
+            
+    if not qty:
+        weight_match = re.search(r'(\d+(?:\.\d+)?)\s*(kg|g)', title, re.IGNORECASE)
+        if weight_match:
+            val = float(weight_match.group(1))
+            unit_str = weight_match.group(2).lower()
+            if unit_str == 'kg':
+                val = val * 1000
+            qty = int(val // 100) if val >= 100 else 1
+            unit = '100g'
 
     return price, qty, unit
 
-def find_competitor_info(title: str, unit: str, my_unit_price: int):
-    """제목 키워드를 기반으로 경쟁/대체 제품과 기준 단가 매칭"""
-    t_lower = title.lower()
-    for item in COMPETITOR_BENCHMARKS:
-        if any(kw in t_lower for kw in item['keywords']):
-            return item['competitor'], item['comp_unit_price'], item['unit']
-            
-    # 매칭되는 벤치마크가 없는 일반 품목의 경우
-    comp_name = "시중 비슷한 브랜드 제품"
-    calc_unit = unit if unit else "개"
-    comp_price = int(my_unit_price * 1.5 // 100 * 100) if my_unit_price else 0
-    return comp_name, comp_price, calc_unit
+def get_short_hook(category: str) -> str:
+    """카테고리에 맞는 4대 스타일 믹스 후킹 무작위 추출"""
+    hooks = SHORT_HOOKS.get(category, SHORT_HOOKS['GENERAL'])
+    return random.choice(hooks)
 
-def format_post(title: str, product_link: str) -> str:
-    """
-    사용자가 원하는 완벽한 쓰레드 대화체 포맷:
-    
-    편의점에서 1+1보면 못참는 사람? 하나 당 가격 계산하는 사람있어?
-    이번에 엄청 할인한 상품 나왔어
-    
-    11,250원 ( <s>16,000원</s> 29% 할인 )
-    체감가는 1봉지에 140원이야!!
-    양반 도시락김은 1봉지에 250원이야!!
-    
-    https://...
-    """
-    clean_name = clean_title_for_display(title)
-    price, qty, unit = parse_price_and_quantity(title)
-    
-    # 1. 후킹 질문 및 도입부
-    hooks = [
-        "편의점에서 1+1 보면 못 참는 사람? 하나당 가격 계산하는 사람 있어?\n이번에 엄청 할인한 상품 나왔어!!",
-        "마트 가면 개당 얼마인지 꼭 계산해 보는 사람 손?\n이번에 진짜 역대급 단가로 풀린 거 있어!!",
-        "어차피 매번 사 먹고 쓰는 건데 제값 주고 사면 아깝잖아?\n이번에 할인 제대로 들어간 거 나왔어!!"
-    ]
-    hook_text = random.choice(hooks)
-    
-    # 2. 가격 및 체감가 계산
-    if price:
-        # 정상가 추정 (30~45% 할인 기준 역산, 최소 500원 단위 올림)
-        raw_est = price * 1.4
-        estimated_original = int((raw_est + 499) // 500 * 500)
-        if estimated_original <= price:
-            estimated_original = price + 1000
-        discount_rate = int((estimated_original - price) / estimated_original * 100)
-        price_header = f"<b>{price:,}원</b> ( <s>{estimated_original:,}원</s> {discount_rate}% 할인 )"
+def build_product_price_line(clean_name: str, price: int | None, qty: int | None, unit: str | None) -> str:
+    """물품 소개 + 가격 1줄 생성"""
+    if not price:
+        return f"👉 {clean_name} 지금 할인 혜택으로 풀렸어!"
         
-        if qty and qty > 1:
-            my_each = price // qty
-            use_unit = unit if unit else "개"
-            if use_unit == "100g":
-                unit_label = "100g에"
-            elif use_unit in ['봉', '봉지']:
-                unit_label = "1봉지에"
-            else:
-                unit_label = f"1{use_unit}에"
-                
-            my_price_line = f"체감가는 {unit_label} <b>{my_each:,}원</b>이야!!"
-            
-            # 동품목 경쟁/비슷한 제품 비교
-            comp_name, comp_price, comp_unit = find_competitor_info(title, use_unit, my_each)
-            if comp_price > 0:
-                comp_unit_label = "100g에" if comp_unit == "100g" else ("1봉지에" if comp_unit in ['봉', '봉지'] else f"1{comp_unit}에")
-                comp_price_line = f"{comp_name}은 {comp_unit_label} <b>{comp_price:,}원</b>이야!!"
-            else:
-                comp_price_line = f"다른 브랜드는 보통 이것보다 30% 이상 비싸!!"
-        else:
-            my_price_line = f"<b>{clean_name}</b> 특가로 나왔어!!"
-            comp_price_line = "시중에서 사려면 최소 1.5배는 더 줘야 해!!"
-    else:
-        price_header = f"<b>{clean_name}</b>"
-        my_price_line = "지금 판매처에서 역대급 쿠폰 할인 중이야!!"
-        comp_price_line = "금방 품절될 수 있으니 서두르는 게 좋아!!"
+    raw_est = price * 1.4
+    estimated_original = int((raw_est + 499) // 500 * 500)
+    if estimated_original <= price:
+        estimated_original = price + 1000
+    discount_rate = int((estimated_original - price) / estimated_original * 100)
 
-    # 3. 전체 메시지 조립
-    lines = [
-        hook_text,
-        "",
-        price_header,
-        my_price_line,
-        comp_price_line,
-        "",
-        product_link,
-        "",
-        "<i>※ 파트너스 활동의 일환으로 수수료를 제공받을 수 있습니다.</i>"
-    ]
-    
-    return "\n".join(lines)
+    if qty and qty > 1:
+        my_each = price // qty
+        use_unit = unit if unit else '개'
+        unit_label = "100g에" if use_unit == "100g" else ("1봉에" if use_unit in ['봉', '봉지'] else f"1{use_unit}에")
+        return f"👉 {clean_name} {price:,}원 ({unit_label} {my_each:,}원꼴)"
+    else:
+        return f"👉 {clean_name} {price:,}원 (정상가 대비 {discount_rate}% 할인)"
 
 def format_threads_post(title: str, product_link: str) -> tuple[str, str]:
     """
-    스레드(Threads) 알고리즘 최적화 2단 분리 포스트 포맷터:
-    1) root_content (본문):
-       - 외부 링크를 완전히 제외하여 알고리즘 추천 피드 노출(Reach) 극대화
-       - 후킹 질문 + 가격/할인율 + 체감가 분석 + 경쟁사 비교
-    2) reply_content (첫 번째 댓글):
-       - 본문 바로 아래 첫 댓글로 구매 링크 및 공정위 파트너스 문구 작성
+    쇼츠/스레드 초압축 3단 포맷터:
+    1) 상황/공감/손실회피/가격실수/실구매자썰 믹스 후킹 (1줄)
+    2) 물품 소개 + 가격 (1줄)
+    3) 구매 링크 안내 (1줄)
     """
     clean_name = clean_title_for_display(title)
+    category = classify_deal_category(title)
+    hook = get_short_hook(category)
     price, qty, unit = parse_price_and_quantity(title)
     
-    # 1. 후킹 질문
-    hooks = [
-        "편의점에서 1+1 보면 못 참는 사람? 하나당 가격 계산하는 사람 있어? 이번에 엄청 할인한 상품 나왔어!! 🔥",
-        "마트 가면 개당 얼마인지 꼭 계산해 보는 사람 손? 🙋 이번에 진짜 역대급 단가로 풀린 거 있어!!",
-        "어차피 매번 사 먹고 쓰는 건데 제값 주고 사면 아깝잖아? 이번에 할인 제대로 들어간 거 나왔어!! ✨"
-    ]
-    hook_text = random.choice(hooks)
+    product_line = build_product_price_line(clean_name, price, qty, unit)
     
-    # 2. 가격 및 체감가 (스레드는 HTML 태그를 지원하지 않으므로 깔끔한 텍스트로 구성)
-    if price:
-        raw_est = price * 1.4
-        estimated_original = int((raw_est + 499) // 500 * 500)
-        if estimated_original <= price:
-            estimated_original = price + 1000
-        discount_rate = int((estimated_original - price) / estimated_original * 100)
-        
-        price_line = f"💰 {price:,}원 (정상가 {estimated_original:,}원 대비 {discount_rate}% 할인)"
-        
-        if qty and qty > 1:
-            my_each = price // qty
-            use_unit = unit if unit else "개"
-            unit_label = "100g에" if use_unit == "100g" else ("1봉지에" if use_unit in ['봉', '봉지'] else f"1{use_unit}에")
-            my_price_line = f"👉 체감가는 {unit_label} {my_each:,}원이야!!"
-            
-            comp_name, comp_price, comp_unit = find_competitor_info(title, use_unit, my_each)
-            if comp_price > 0:
-                comp_unit_label = "100g에" if comp_unit == "100g" else ("1봉지에" if comp_unit in ['봉', '봉지'] else f"1{comp_unit}에")
-                comp_price_line = f"⚖️ 참고로 {comp_name}은 {comp_unit_label} {comp_price:,}원이야!"
-            else:
-                comp_price_line = "⚖️ 다른 브랜드는 보통 이것보다 30% 이상 비싸!"
-        else:
-            my_price_line = f"👉 {clean_name} 역대급 특가로 나왔어!!"
-            comp_price_line = "⚖️ 시중에서 사려면 최소 1.5배는 더 줘야 해!"
-    else:
-        price_line = f"📦 {clean_name}"
-        my_price_line = "👉 지금 판매처에서 역대급 쿠폰 할인 중이야!!"
-        comp_price_line = "⚖️ 금방 품절될 수 있으니 확인해 봐!"
-        
     root_lines = [
-        hook_text,
+        hook,
+        product_line,
         "",
-        price_line,
-        my_price_line,
-        comp_price_line,
-        "",
-        "🔗 구매 링크는 첫 번째 댓글에 남겨둘게! 👇"
+        "🔗 구매 좌표는 첫 번째 댓글에 남겨둘게! 👇"
     ]
     root_content = "\n".join(root_lines)
     
     reply_lines = [
-        f"👉 특가 구매 링크 바로가기:\n{product_link}",
+        f"👉 구매 좌표 바로가기:\n{product_link}",
         "",
         "※ 파트너스 활동의 일환으로 수수료를 제공받을 수 있습니다."
     ]
@@ -291,3 +285,21 @@ def format_threads_post(title: str, product_link: str) -> tuple[str, str]:
     
     return root_content, reply_content
 
+def format_post(title: str, product_link: str) -> str:
+    """텔레그램 알림용 포맷터"""
+    clean_name = clean_title_for_display(title)
+    category = classify_deal_category(title)
+    hook = get_short_hook(category)
+    price, qty, unit = parse_price_and_quantity(title)
+    
+    product_line = build_product_price_line(clean_name, price, qty, unit)
+    
+    lines = [
+        hook,
+        f"<b>{product_line}</b>",
+        "",
+        product_link,
+        "",
+        "<i>※ 파트너스 활동의 일환으로 수수료를 제공받을 수 있습니다.</i>"
+    ]
+    return "\n".join(lines)
