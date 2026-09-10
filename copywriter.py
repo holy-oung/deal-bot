@@ -1,5 +1,5 @@
 # copywriter.py
-# 숏폼/스레드 모바일 스크롤 최적화 초압축 4대 후킹 믹스 (공감형, 손실회피형, 가격실수형, 실구매자썰형)
+# 숏폼/스레드 모바일 스크롤 최적화 트렌드 취미 연계(러닝, 배그 사플, 오운완 식단, 땀냄새 빨래 등) + 초압축 3단 포맷터
 
 import re
 import random
@@ -72,76 +72,6 @@ CATEGORY_KEYWORDS = {
     ]
 }
 
-# ==========================================
-# 2. 카테고리별 4대 후킹 스타일 믹스 라이브러리
-# (공감형, 손실회피형, 가격실수형, 실구매자썰형)
-# ==========================================
-SHORT_HOOKS = {
-    'SHOES': [
-        "조금만 오래 걸어도 발바닥 아프고 피로 쉽게 쌓이는 사람 손? 👟",
-        "제발 브랜드 운동화 정가 10만원씩 다 주고 사지 마세요 🫢",
-        "이 스펙 신발이 이 가격에 풀린 건 담당자 실수 아닌가... 👀",
-        "발 편한 데일리 전투화 찾다가 이건 진짜 줍줍각이라 공유함 👟"
-    ],
-    'DIGITAL_TECH': [
-        "게임할 때 선 걸리적거리고 충전 깜빡해서 꺼진 적 다들 있지? 🎧",
-        "비싼 게이밍 장비 거품가 다 주고 사면 진짜 아까움 ⚡",
-        "충전독까지 주는 구성인데 이 가격이면 가격 잘못 올린 듯 🫢",
-        "비싼 브랜드 헤드셋 쓰다가 이거 스펙 보고 현타 왔음... 🎧"
-    ],
-    'KIDS': [
-        "애들은 금방 쑥쑥 커서 옷 제값 다 주고 사면 제일 아까움 👶",
-        "우리 아이 편하게 입힐 데일리 등원룩/외출복 찾는다면 🍼",
-        "놀이터용 막 입히는 옷 찾다가 가성비 미쳐서 바로 담음 🧸",
-        "브랜드 키즈 의류가 보세 옷보다 싸게 풀린 거 실화인가 👀"
-    ],
-    'LIVING': [
-        "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
-        "집에 떨어지면 불안해서 박스로 쟁여둬야 마음 편한 필수템 📦",
-        "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼",
-        "생필품은 핫딜 떴을 때 박스 단위로 사두는 게 진짜 돈 버는 거임 ✨"
-    ],
-    'FOOD_PROCESSED': [
-        "퇴근하고 밥 차리기 귀찮을 때 배달비 아끼는 치트키 🍜",
-        "배달앱 켤 때마다 2~3만원씩 깨지는데 이럴 때 냉동실 채워둬야 함 🥟",
-        "출출할 때 바로 꺼내먹는 야식용 비상식량 최저가 떴길래 공유함 😋",
-        "개당 단가 계산해봤더니 편의점 1+1보다 훨씬 싸네요 🔥"
-    ],
-    'FOOD_FRESH': [
-        "요즘 장바구니 물가 무서운데 마트 반값 수준으로 풀린 먹거리 🛒",
-        "외식 한 번 참는 가격으로 온 가족 배부르게 먹는 꿀템 🥩",
-        "고기/과일 정육점 가격 보고 망설였는데 산지직송급 특가 발견 😋",
-        "후기 검증된 신선 먹거리 역대급 단가 떴으니 마트 가지 마세요 🍎"
-    ],
-    'BEVERAGE_SNACK': [
-        "매일 마시는 커피·음료 편의점 가격 아까웠던 사람? ☕",
-        "물·음료 떨어질 때마다 무겁게 들고 오지 말고 박스로 쟁여둘 타이밍 🧊",
-        "탕비실/냉장고 채워둘 음료 단가 계산해보고 바로 긁었음 🧃",
-        "한 캔/한 병에 이 가격이면 편의점 반값도 안 되는 수준 🔥"
-    ],
-    'BEAUTY': [
-        "환절기만 되면 피부 땅기고 건조해서 고민인 사람? 🧴",
-        "올영 세일 때도 이 가격은 안 나왔으니 정가 주지 마세요 💄",
-        "공병 몇 개째 비우는 인생템인데 최저가 떴길래 공유함 ✨",
-        "피부과/올영 상위권인 그 제품 역대급 혜택가 뜸 🌸"
-    ],
-    'HOME_APPLIANCE': [
-        "퇴근 후 집안일 시간 확 줄여주는 삶의 질 상승 가전 🏠",
-        "대기업 비싼 가전 살 필요 없이 실속형으로 뽕 뽑는 템 ⚡",
-        "이 가격에 이 기능이면 진작 살 걸 그랬음... 가성비 종결 🔥"
-    ],
-    'FASHION': [
-        "옷장은 꽉 찼는데 매번 입을 옷 없어서 고민인 사람? 👕",
-        "백화점 브랜드 옷 정가 다 주고 사면 바보 되는 이유 👀",
-        "어디에나 편하게 받쳐 입을 가성비 기본템 찾다가 발견함 ✨"
-    ],
-    'GENERAL': [
-        "살까 말까 고민하면서 장바구니에만 넣어뒀던 분들 주목 👀",
-        "제발 제값 다 주고 사지 마세요! 실시간 최저가 떴습니다 🔥",
-        "담당자가 할인 쿠폰 중복 적용 풀어둔 듯... 실시간 품절 각 ⚡"
-    ]
-}
-
 def clean_title_for_display(title: str) -> str:
     """쇼핑몰 태그 및 부가 정보를 깔끔하게 정리한 제품명"""
     t = re.sub(r'\[.*?\]', '', title)
@@ -154,43 +84,24 @@ def classify_deal_category(title: str) -> str:
     """상품명을 분석하여 정밀 카테고리 판별 (태그 제거 후 분석)"""
     clean_text = clean_title_for_display(title).lower()
     
-    # 1. 신발 (최우선 매칭)
     if any(kw in clean_text for kw in CATEGORY_KEYWORDS['SHOES']):
         return 'SHOES'
-        
-    # 2. 디지털 / 게이밍 기기
     if any(kw in clean_text for kw in CATEGORY_KEYWORDS['DIGITAL_TECH']):
         return 'DIGITAL_TECH'
-        
-    # 3. 생활 / 주방가전
     if any(kw in clean_text for kw in CATEGORY_KEYWORDS['HOME_APPLIANCE']):
         return 'HOME_APPLIANCE'
-        
-    # 4. 뷰티 / 화장품
     if any(kw in clean_text for kw in CATEGORY_KEYWORDS['BEAUTY']):
         return 'BEAUTY'
-        
-    # 5. 키즈 / 육아
     if any(kw in clean_text for kw in CATEGORY_KEYWORDS['KIDS']):
         return 'KIDS'
-        
-    # 6. 생활 / 위생용품 (세제, 화장지 등)
     if any(kw in clean_text for kw in CATEGORY_KEYWORDS['LIVING']):
         return 'LIVING'
-        
-    # 7. 가공식품 / 만두 / 간편식 / 밀키트
     if any(kw in clean_text for kw in CATEGORY_KEYWORDS['FOOD_PROCESSED']):
         return 'FOOD_PROCESSED'
-        
-    # 8. 신선식품 / 정육 / 수산 / 과일
     if any(kw in clean_text for kw in CATEGORY_KEYWORDS['FOOD_FRESH']):
         return 'FOOD_FRESH'
-        
-    # 9. 음료 / 간식 / 커피
     if any(kw in clean_text for kw in CATEGORY_KEYWORDS['BEVERAGE_SNACK']):
         return 'BEVERAGE_SNACK'
-        
-    # 10. 의류 / 패션
     if any(kw in clean_text for kw in CATEGORY_KEYWORDS['FASHION']):
         return 'FASHION'
         
@@ -230,10 +141,178 @@ def parse_price_and_quantity(title: str):
 
     return price, qty, unit
 
-def get_short_hook(category: str) -> str:
-    """카테고리에 맞는 4대 스타일 믹스 후킹 무작위 추출"""
-    hooks = SHORT_HOOKS.get(category, SHORT_HOOKS['GENERAL'])
-    return random.choice(hooks)
+# ==========================================
+# 2. 트렌드 취미 및 라이프스타일 연계 초압축 후킹 생성기
+# ==========================================
+def get_trendy_hook(title: str, category: str) -> str:
+    """상품 세부 품목과 2030 트렌드 취미(러닝, 배그 사플, 오운완, 땀냄새 빨래 등)를 정밀 결합한 1줄 후킹"""
+    t = title.lower()
+    
+    # 1. 신발 / 러닝 / 트레킹 / 아웃도어
+    if category == 'SHOES':
+        if any(k in t for k in ['러닝화', '런닝화', '러닝', '런닝', '운동화', '스니커즈']):
+            options = [
+                "요즘 러닝 많이 뛰는데 일반 운동화 신고 뛰는 사람 손? 🏃",
+                "러닝 크루 들어가려고 가성비 런닝화 찾고 있었다면 👟",
+                "발 편한 데일리 러닝화 찾다가 이건 진짜 줍줍각이라 공유함 👟",
+                "제발 브랜드 러닝화 정가 10만원씩 다 주고 사지 마세요 🫢"
+            ]
+        elif any(k in t for k in ['트레킹화', '등산화', '고어텍스']):
+            options = [
+                "요즘 날씨 좋아서 주말마다 등산·트레킹 가시는 분들 🥾",
+                "가볍고 발목 탄탄하게 잡아주는 트레킹화 찾는다면 🏔️",
+                "고어텍스 트레킹화가 이 가격에 풀린 건 담당자 실수 아닌가... 👀",
+                "조금만 오래 걸어도 발바닥 아프고 피로 쉽게 쌓이는 사람 손? 👟"
+            ]
+        else:
+            options = [
+                "출퇴근할 때 매일 편하게 막 신을 데일리 슈즈 찾는다면 👟",
+                "제발 브랜드 신발 정가 다 주고 사지 마세요 🫢",
+                "조금만 걸어도 발바닥 아프고 피로 쉽게 쌓이는 사람 손? 👟"
+            ]
+        return random.choice(options)
+        
+    # 2. 디지털 / 게이밍 (배그/발로란트 사플, 데스크테리어)
+    if category == 'DIGITAL_TECH':
+        if any(k in t for k in ['헤드셋', '이어폰', '헤드폰', '독거미', '게이밍']):
+            options = [
+                "요즘 배그나 발로란트 할 때 사플 안 돼서 답답했던 사람? 🎧",
+                "게임할 때 선 걸리적거리고 충전 깜빡해서 꺼진 적 다들 있지? 🎧",
+                "충전독까지 주는 무선 헤드셋인데 이 가격이면 담당자 실수인 듯 🫢",
+                "비싼 브랜드 헤드셋 쓰다가 이거 스펙 보고 현타 왔음... 🎧"
+            ]
+        elif any(k in t for k in ['키보드', '마우스', '모니터', '거치대']):
+            options = [
+                "책상 위 지저분한 선 정리하고 감성 데스크테리어 맞출 타이밍 ⚡",
+                "게임 장비 욕심 있는 분들 지금 역대급 가성비 떴습니다 💻",
+                "장시간 PC 작업할 때 손목 피로했던 사람 손? ⌨️"
+            ]
+        else:
+            options = [
+                "비싼 전자기기 거품가 다 주고 사면 진짜 아까움 ⚡",
+                "책상 위 복잡한 충전선 때문에 스트레스 받는 사람 손? ⚡",
+                "가성비 끝판왕 IT 장비 찾고 있었다면 💻"
+            ]
+        return random.choice(options)
+        
+    # 3. 생활용품 / 세제 (러닝 땀냄새, 자취 살림)
+    if category == 'LIVING':
+        if any(k in t for k in ['세제', '섬유유연제', '피죤', '다우니', '퍼실', '리큐', '테크']):
+            options = [
+                "요즘 러닝·헬스하느라 땀 많이 날 텐데 땀냄새 싹 지우려면 이거 써야 함 🧼",
+                "빨래 꿉꿉한 냄새 한 방에 잡는 대용량 섬유유연제 역대급 단가 떴음 🧺",
+                "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
+                "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼"
+            ]
+        elif any(k in t for k in ['휴지', '화장지', '물티슈', '롤휴지']):
+            options = [
+                "집에 떨어지면 불안해서 박스로 쟁여둬야 마음 편한 필수템 📦",
+                "자취생 필수템! 마트에서 무겁게 들고 오지 말고 문 앞 배송으로 쟁여둘 타이밍 🧻",
+                "생필품은 핫딜 떴을 때 박스 단위로 사두는 게 진짜 돈 버는 거임 ✨"
+            ]
+        else:
+            options = [
+                "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
+                "집에 떨어지면 불안해서 박스로 쟁여둬야 마음 편한 필수템 📦",
+                "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼"
+            ]
+        return random.choice(options)
+        
+    # 4. 식품 / 간편식 (오운완 식단, 넷플릭스 야식, 밥 차리기 귀찮을 때)
+    if category in ('FOOD_PROCESSED', 'FOOD_FRESH'):
+        if any(k in t for k in ['닭가슴살', '프로틴', '단백질', '소고기', '한우', '삼겹살']):
+            options = [
+                "운동하는 사람 손!! 식단 나랑 같이하자 💪",
+                "오운완 후 단백질 채워둘 식단 비상식량 최저가 떴음 🍗",
+                "외식 한 번 참는 가격으로 고기 배 터지게 먹는 꿀템 🥩",
+                "닭가슴살 물려서 식단 고민이었다면 지금이 쟁여둘 타이밍 😋"
+            ]
+        elif any(k in t for k in ['만두', '교자', '피자', '치킨', '너겟', '라면', '대창', '곱창', '전골']):
+            options = [
+                "퇴근하고 밥 차리기 귀찮을 때 배달비 아끼는 치트키 🍜",
+                "주말에 넷플릭스 보면서 맥주 한잔 곁들일 꿀맛 안주 찾는다면 🍺",
+                "배달앱 켤 때마다 2~3만원씩 깨지는데 이럴 때 냉동실 채워둬야 함 🥟",
+                "출출할 때 바로 꺼내먹는 야식용 비상식량 최저가 떴길래 공유함 😋"
+            ]
+        elif any(k in t for k in ['과일', '귤', '감귤', '사과', '복숭아']):
+            options = [
+                "요즘 장바구니 과일 물가 살벌한데 마트 반값 수준으로 풀림 🍎",
+                "집에서 상큼하게 비타민 충전할 제철 과일 산지직송급 특가 🍊",
+                "마트 가면 과일 하나 집기도 겁나는데 역대급 단가 떴음 🛒"
+            ]
+        else:
+            options = [
+                "요즘 장바구니 물가 무서운데 마트 반값 수준으로 풀린 먹거리 🛒",
+                "퇴근하고 밥 차리기 귀찮을 때 배달비 아끼는 치트키 🍜",
+                "냉동실에 쟁여두면 출출할 때 든든한 야식/반찬 비상식량 🥟"
+            ]
+        return random.choice(options)
+        
+    # 5. 음료 / 커피 / 간식 (오운완 제로음료, 홈카페)
+    if category == 'BEVERAGE_SNACK':
+        if any(k in t for k in ['제로', '탄산수', '음료', '콜라', '사이다']):
+            options = [
+                "운동 끝나고 시원하게 마실 제로 음료 박스로 채워둘 타이밍 🧊",
+                "한 캔에 이 가격이면 편의점 반값도 안 되는 수준 🔥",
+                "물·음료 떨어질 때마다 무겁게 들고 오지 말고 문 앞 배송으로 쟁여두자 🧃"
+            ]
+        elif any(k in t for k in ['커피', '원두', '캡슐', '카누', '아메리카노']):
+            options = [
+                "하루 커피 2잔씩 마시는데 매달 커피값 10만원씩 깨지는 사람? ☕",
+                "홈카페 차려두고 출근길 텀블러에 타서 커피값 굳힐 타이밍 ☕",
+                "매일 마시는 커피 편의점/카페 가격 아까웠다면 무조건 확인 ☕"
+            ]
+        else:
+            options = [
+                "매일 마시는 커피·음료 편의점 가격 아까웠던 사람? ☕",
+                "물·음료 떨어질 때마다 무겁게 들고 오지 말고 박스로 쟁여둘 타이밍 🧊",
+                "탕비실/냉장고 채워둘 음료 단가 계산해보고 바로 긁었음 🧃"
+            ]
+        return random.choice(options)
+        
+    # 6. 뷰티 (야외 러닝 자외선/피부 진정, 올영 랭킹)
+    if category == 'BEAUTY':
+        options = [
+            "야외 러닝이나 운동하고 자외선에 지친 피부 진정시킬 타이밍 🧴",
+            "올영 세일 때도 이 가격은 안 나왔으니 정가 주지 마세요 💄",
+            "환절기만 되면 피부 땅기고 건조해서 고민인 사람 손? 🧴",
+            "공병 몇 개째 비우는 인생템인데 최저가 떴길래 공유함 ✨"
+        ]
+        return random.choice(options)
+        
+    # 7. 키즈 / 육아
+    if category == 'KIDS':
+        options = [
+            "애들은 금방 쑥쑥 커서 옷 제값 다 주고 사면 제일 아까움 👶",
+            "우리 아이 편하게 입힐 데일리 등원룩/외출복 찾는다면 🍼",
+            "놀이터용 막 입히는 옷 찾다가 가성비 미쳐서 바로 담음 🧸",
+            "브랜드 키즈 의류가 보세 옷보다 싸게 풀린 거 실화인가 👀"
+        ]
+        return random.choice(options)
+        
+    # 8. 가전 / 패션 / 일반
+    if category == 'HOME_APPLIANCE':
+        options = [
+            "퇴근 후 집안일 시간 확 줄여주는 삶의 질 상승 가전 🏠",
+            "대기업 비싼 가전 살 필요 없이 실속형으로 뽕 뽑는 템 ⚡",
+            "이 가격에 이 기능이면 진작 살 걸 그랬음... 가성비 종결 🔥"
+        ]
+        return random.choice(options)
+        
+    if category == 'FASHION':
+        options = [
+            "요즘 유행하는 고프코어/러닝용으로 편하게 입을 기본템 찾는다면 👕",
+            "옷장은 꽉 찼는데 매번 입을 옷 없어서 고민인 사람? 👕",
+            "백화점 브랜드 옷 정가 다 주고 사면 바보 되는 이유 👀"
+        ]
+        return random.choice(options)
+        
+    options = [
+        "살까 말까 고민하면서 장바구니에만 넣어뒀던 분들 주목 👀",
+        "제발 제값 다 주고 사지 마세요! 실시간 최저가 떴습니다 🔥",
+        "담당자가 할인 쿠폰 중복 적용 풀어둔 듯... 실시간 품절 각 ⚡"
+    ]
+    return random.choice(options)
 
 def build_product_price_line(clean_name: str, price: int | None, qty: int | None, unit: str | None) -> str:
     """물품 소개 + 가격 1줄 생성"""
@@ -257,13 +336,13 @@ def build_product_price_line(clean_name: str, price: int | None, qty: int | None
 def format_threads_post(title: str, product_link: str) -> tuple[str, str]:
     """
     쇼츠/스레드 초압축 3단 포맷터:
-    1) 상황/공감/손실회피/가격실수/실구매자썰 믹스 후킹 (1줄)
+    1) 트렌드 취미/라이프스타일 연계 공감 후킹 (1줄)
     2) 물품 소개 + 가격 (1줄)
     3) 구매 링크 안내 (1줄)
     """
     clean_name = clean_title_for_display(title)
     category = classify_deal_category(title)
-    hook = get_short_hook(category)
+    hook = get_trendy_hook(title, category)
     price, qty, unit = parse_price_and_quantity(title)
     
     product_line = build_product_price_line(clean_name, price, qty, unit)
@@ -289,7 +368,7 @@ def format_post(title: str, product_link: str) -> str:
     """텔레그램 알림용 포맷터"""
     clean_name = clean_title_for_display(title)
     category = classify_deal_category(title)
-    hook = get_short_hook(category)
+    hook = get_trendy_hook(title, category)
     price, qty, unit = parse_price_and_quantity(title)
     
     product_line = build_product_price_line(clean_name, price, qty, unit)
