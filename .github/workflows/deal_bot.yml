@@ -11,6 +11,8 @@ on:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: 1. 저장소 체크아웃
