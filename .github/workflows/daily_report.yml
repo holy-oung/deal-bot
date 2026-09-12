@@ -1,0 +1,31 @@
+name: 📢 Daily System & Trend Reporter (매일 밤 11시 일일 리포트 발송)
+
+on:
+  schedule:
+    # 매일 밤 11시(KST 23:00 = UTC 14:00)에 1회 자동 실행
+    - cron: '0 14 * * *'
+  workflow_dispatch: # 깃허브 웹 화면에서 [Run workflow] 클릭 시 즉시 1회 발송
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 2. 파이썬 환경 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 3. 필수 패키지 설치
+        run: |
+          pip install requests
+
+      - name: 4. 일일 트렌드 & 운영 리포트 생성 및 텔레그램 발송
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python daily_reporter.py

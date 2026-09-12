@@ -11,7 +11,7 @@ from datetime import datetime, timedelta, timezone
 
 from config import CHECK_INTERVAL_SECONDS, KEYWORD_FILTERS
 from history import load_sent_deals, save_sent_deals
-from scraper import fetch_latest_deals, fetch_direct_product_link, is_monetizable_deal
+from scraper import fetch_latest_deals, fetch_direct_product_link, fetch_deal_details, is_monetizable_deal
 from link_helper import get_product_link
 from copywriter import format_post, format_threads_post
 from notifier import send_deal_alert
@@ -91,8 +91,12 @@ def run_pipeline(sent_deals: set, last_post_time: float = 0.0) -> tuple[int, flo
                 
         print(f"  [새 핫딜 발견] {deal['title']}")
         
-        # 4. 원문 상세 쇼핑몰 주소 추출
-        direct_url = fetch_direct_product_link(deal['ppom_url'])
+        # 4. 듀얼 트랙(Track 1: 원문 맥락 & Track 2: 1차 출처) 정보 수집 및 고해상도 이미지 선별
+        details = fetch_deal_details(deal['ppom_url'])
+        direct_url = details['direct_url']
+        high_res_image = details['high_res_image']
+        context_text = details['context_text']
+        print(f"    [{details['image_reason']}]")
         
         # 상세 주소 기준 2차 비수익 도메인(알뜰폰 등) 검사
         can_monetize, reason = is_monetizable_deal(deal['title'], direct_url)
@@ -117,9 +121,9 @@ def run_pipeline(sent_deals: set, last_post_time: float = 0.0) -> tuple[int, flo
         # 7. 텔레그램 알림 발송
         success = send_deal_alert(deal, formatted_message)
         
-        # 8. 스레드(Threads) 2단 분리 자동 포스팅 (본문 노출 극대화 + 첫 댓글 링크)
-        root_text, reply_text = format_threads_post(deal['title'], product_link)
-        threads_res = post_to_threads(root_text, reply_text, image_url=deal.get('thumb_url'))
+        # 8. 스레드(Threads) 2단 분리 자동 포스팅 (정보 해상도 강화 + 고해상도 이미지 또는 클린 텍스트 모드)
+        root_text, reply_text = format_threads_post(deal['title'], product_link, context_text=context_text)
+        threads_res = post_to_threads(root_text, reply_text, image_url=high_res_image)
         
         if success or threads_res.get('success'):
             sent_deals.add(deal_id)
@@ -167,10 +171,12 @@ def main():
                 target_deal = d
                 break
         if target_deal:
-            direct = fetch_direct_product_link(target_deal['ppom_url'])
+            details = fetch_deal_details(target_deal['ppom_url'])
+            print(f"  [{details['image_reason']}]")
+            direct = details['direct_url']
             link = get_product_link(direct, target_deal['title'])
-            root_text, reply_text = format_threads_post(target_deal['title'], link)
-            post_to_threads(root_text, reply_text, image_url=target_deal.get('thumb_url'))
+            root_text, reply_text = format_threads_post(target_deal['title'], link, context_text=details['context_text'])
+            post_to_threads(root_text, reply_text, image_url=details['high_res_image'])
         else:
             print("  -> 현재 수집된 핫딜 중 수익화 가능한 핫딜이 없습니다.")
         return
@@ -193,12 +199,14 @@ def main():
                 target_deal = d
                 break
         if target_deal:
-            direct = fetch_direct_product_link(target_deal['ppom_url'])
+            details = fetch_deal_details(target_deal['ppom_url'])
+            print(f"  [{details['image_reason']}]")
+            direct = details['direct_url']
             link = get_product_link(direct, target_deal['title'])
             msg = format_post(target_deal['title'], link)
             send_deal_alert(target_deal, msg)
-            root_text, reply_text = format_threads_post(target_deal['title'], link)
-            post_to_threads(root_text, reply_text, image_url=target_deal.get('thumb_url'))
+            root_text, reply_text = format_threads_post(target_deal['title'], link, context_text=details['context_text'])
+            post_to_threads(root_text, reply_text, image_url=details['high_res_image'])
             print(f"  -> 테스트 발송 완료: {target_deal['title']}")
         else:
             print("  -> 현재 수집된 핫딜 중 수익화 가능한 핫딜이 없습니다.")

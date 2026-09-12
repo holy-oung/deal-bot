@@ -61,8 +61,14 @@ def _create_container(text: str, image_url: str = None, reply_to_id: str = None)
         "access_token": THREADS_ACCESS_TOKEN,
     }
     
-    # 이미지 지원 (공개 HTTPS 이미지 주소가 있을 때)
-    if image_url and image_url.startswith("https://"):
+    # 이미지 지원: 공개 HTTPS 주소이며 저화질(small_, _thumb 등)이 아닌 경우에만 이미지 발행
+    is_valid_image = bool(image_url and image_url.startswith("https://"))
+    if is_valid_image:
+        low_res_markers = ['_thumb', 'small_', '/thumb/', 'icon', 'logo']
+        if any(m in image_url.lower() for m in low_res_markers):
+            is_valid_image = False
+            
+    if is_valid_image:
         payload["media_type"] = "IMAGE"
         payload["image_url"] = image_url
         if text:
@@ -115,7 +121,8 @@ def post_to_threads(root_text: str, reply_text: str = None, image_url: str = Non
             print(f"       [미리보기 댓글] {reply_text.splitlines()[0]}...")
         return {"success": True, "dry_run": True, "root_id": "dry_run_root_id"}
 
-    print("    🧵 [Threads] 공식 API로 본문 게시 중...")
+    mode_str = f"고화질 이미지 모드 ({image_url[:55]}...)" if image_url and not any(m in image_url.lower() for m in ['_thumb', 'small_']) else "클린 텍스트 모드 (저화질 방지 & 가독성 극대화)"
+    print(f"    🧵 [Threads] 공식 API 본문 게시 중... [{mode_str}]")
     
     # 1. 본문 컨테이너 생성
     root_creation_id = _create_container(text=root_text, image_url=image_url)

@@ -1,4 +1,4 @@
-name: 🔄 Daily Threads Hooks Harvester
+name: 🔄 Daily Threads Hooks Continual Learner (시계열 트렌드 지속 학습기)
 
 on:
   schedule:
@@ -7,30 +7,36 @@ on:
   workflow_dispatch: # 깃허브 웹에서 수동으로 [Run workflow] 누르면 즉시 실행
 
 jobs:
-  harvest:
+  harvest-and-learn:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - name: 저장소 체크아웃
+      - name: 1. 저장소 체크아웃
         uses: actions/checkout@v4
 
-      - name: 파이썬 셋업
+      - name: 2. 파이썬 환경 설정
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: 의존성 패키지 및 브라우저 설치
+      - name: 3. 의존성 패키지 및 브라우저 설치
         run: |
           pip install playwright requests beautifulsoup4
           playwright install --with-deps chromium
 
-      - name: 쓰레드 벤치마킹 데이터 수집 실행
+      - name: 4. 스레드 벤치마킹 시계열 데이터 수집 (Time-series Ingestion)
         run: |
           python harvest_threads.py
 
-      - name: 변경된 족보 데이터(harvested_hooks.json) 자동 깃 커밋 & 푸시
+      - name: 5. 시간 감쇄 머신러닝 분석 및 동적 후킹 풀 갱신 (Trend Learning)
+        run: |
+          python trend_analyzer.py
+
+      - name: 6. 학습 결과물(trend_timeline.jsonl, dynamic_hook_pool.json) 자동 커밋 & 푸시
         run: |
           git config --global user.name "deal-bot-learner"
           git config --global user.email "bot@dealbot.local"
-          git add harvested_hooks.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 [자동학습] 최신 쓰레드 후킹 족보 업데이트" && git push)
+          git add trend_timeline.jsonl dynamic_hook_pool.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 [지속학습] 시계열 트렌드 데이터 및 동적 후킹 풀 갱신" && git push)

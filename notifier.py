@@ -31,3 +31,21 @@ def send_deal_alert(deal: dict, formatted_message: str) -> bool:
     except Exception as e:
         print(f"[Error] 텔레그램 발송 실패: {e}")
         return False
+
+def send_telegram_message(text: str) -> bool:
+    """일반 텍스트/HTML 리포트 메시지 전송"""
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        'chat_id': TELEGRAM_CHAT_ID,
+        'text': text,
+        'parse_mode': 'HTML',
+        'disable_web_page_preview': True
+    }
+    try:
+        res = requests.post(url, json=payload, timeout=10)
+        data = res.json()
+        return data.get('ok', False)
+    except Exception as e:
+        print(f"[Error] 텔레그램 메시지 발송 실패: {e}")
+        return False
+

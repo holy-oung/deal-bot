@@ -64,22 +64,93 @@ def decode_ppomppu_target(redirect_url: str) -> str:
         pass
     return redirect_url
 
-def fetch_direct_product_link(ppom_url: str) -> str:
-    """게시글 상세 페이지에 접속하여 실제 판매처(쇼핑몰) 원문 링크 추출"""
+def is_low_res_image(url: str | None) -> bool:
+    """초저화질 썸네일(뽐뿌 목록 썸네일, 작은 아이콘 등) 여부 판정"""
+    if not url:
+        return True
+    url_lower = url.lower()
+    low_res_keywords = ['_thumb', 'small_', '/thumb/', 'icon', 'logo', 'banner']
+    return any(kw in url_lower for kw in low_res_keywords)
+
+def fetch_deal_details(ppom_url: str) -> dict:
+    """
+    듀얼 트랙(Agent Reach 원문 맥락 + Research 1차 출처) 정보 수집 & 고해상도 이미지 선별:
+    1) 원문 쇼핑몰 링크 추출
+    2) 트랙 1 (원문/소셜 맥락): td.han 본문 텍스트 및 900px 원본 이미지 추출
+    3) 트랙 2 (1차 출처 쇼핑몰): 공식 OpenGraph og:image 추출
+    4) 해상도 선별기(Resolution Comparator): 고화질(쇼핑몰 og:image 또는 900w 원본) 채택, 불가 시 None(텍스트 모드)
+    """
+    direct_url = ppom_url
+    community_text = ""
+    community_high_res = None
+    mall_high_res = None
+    
     try:
         res = requests.get(ppom_url, headers=HEADERS, timeout=5)
         res.encoding = 'cp949'
         soup = BeautifulSoup(res.text, 'html.parser')
         
-        # 뽐뿌 상단 구매 링크 탐색
+        # 1. 뽐뿌 상단 구매 링크 탐색
         for a in soup.select('a'):
             href = a.get('href', '')
             if 's.ppomppu.co.kr' in href:
-                return decode_ppomppu_target(href)
+                direct_url = decode_ppomppu_target(href)
+                break
+                
+        # 2. 트랙 1: 작성자 원문 본문 텍스트 & 고화질 업로드 이미지 (td.han)
+        han = soup.select_one('td.han')
+        if han:
+            community_text = han.get_text(separator=' ', strip=True)
+            for img in han.find_all('img'):
+                src = img.get('src', '')
+                if src.startswith('//'):
+                    src = 'https:' + src
+                if '900w_' in src or ('data' in src and not is_low_res_image(src)):
+                    community_high_res = src
+                    break
     except Exception as e:
         print(f"[Warning] 상세 링크 추출 실패 ({ppom_url}): {e}")
-        
-    return ppom_url
+
+    # 3. 트랙 2: 1차 출처 쇼핑몰 메타데이터 파싱 (Research)
+    if direct_url and direct_url.startswith('http') and direct_url != ppom_url:
+        try:
+            m_res = requests.get(direct_url, headers=HEADERS, timeout=4, allow_redirects=True)
+            m_soup = BeautifulSoup(m_res.text, 'html.parser')
+            og_img = m_soup.select_one('meta[property="og:image"]')
+            if og_img and og_img.get('content'):
+                candidate = og_img.get('content')
+                if candidate.startswith('//'):
+                    candidate = 'https:' + candidate
+                if not is_low_res_image(candidate):
+                    mall_high_res = candidate
+        except Exception:
+            pass
+
+    # 4. 해상도 선별기 (Resolution Comparator)
+    # 쇼핑몰 공식 고화질 og:image 우선 -> 원문 900w 원본 차선 -> 둘 다 없으면 None(텍스트 모드)
+    final_image = None
+    selection_reason = ""
+    if mall_high_res and not is_low_res_image(mall_high_res):
+        final_image = mall_high_res
+        selection_reason = "1차 출처 쇼핑몰 공식 고화질 og:image 채택"
+    elif community_high_res and not is_low_res_image(community_high_res):
+        final_image = community_high_res
+        selection_reason = "원문 본문 900px 고화질 원본 이미지 채택"
+    else:
+        final_image = None
+        selection_reason = "고화질 검증 실패로 저화질 방지용 순수 텍스트(TEXT) 모드 채택"
+
+    return {
+        'direct_url': direct_url,
+        'context_text': community_text,
+        'high_res_image': final_image,
+        'image_reason': selection_reason
+    }
+
+def fetch_direct_product_link(ppom_url: str) -> str:
+    """하위 호환성을 위한 단독 원문 링크 추출 함수"""
+    details = fetch_deal_details(ppom_url)
+    return details['direct_url']
 
 def fetch_latest_deals() -> list:
     """뽐뿌 뽐뿌게시판에서 최신 핫딜 목록 추출"""

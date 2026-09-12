@@ -142,177 +142,60 @@ def parse_price_and_quantity(title: str):
     return price, qty, unit
 
 # ==========================================
-# 2. 트렌드 취미 및 라이프스타일 연계 초압축 후킹 생성기
+# 2. 동적 머신러닝 후킹 로더 및 가중치 샘플링 엔진
 # ==========================================
+import os
+import json
+
+DYNAMIC_POOL_FILE = os.path.join(os.path.dirname(__file__), 'dynamic_hook_pool.json')
+_cached_pool = None
+_cached_pool_mtime = 0.0
+
+def load_dynamic_hook_pool() -> dict:
+    """dynamic_hook_pool.json 파일을 실시간 캐싱 및 자동 갱신 감지 로드"""
+    global _cached_pool, _cached_pool_mtime
+    if not os.path.exists(DYNAMIC_POOL_FILE):
+        return {}
+    try:
+        mtime = os.path.getmtime(DYNAMIC_POOL_FILE)
+        if _cached_pool is not None and mtime == _cached_pool_mtime:
+            return _cached_pool
+        with open(DYNAMIC_POOL_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            _cached_pool = data.get('hooks', {})
+            _cached_pool_mtime = mtime
+            return _cached_pool
+    except Exception as e:
+        print(f"⚠️ [후킹 풀 로드 오류] {e}")
+        return _cached_pool or {}
+
 def get_trendy_hook(title: str, category: str) -> str:
-    """상품 세부 품목과 2030 트렌드 취미(러닝, 배그 사플, 오운완, 땀냄새 빨래 등)를 정밀 결합한 1줄 후킹"""
-    t = title.lower()
+    """
+    동적으로 학습된 후킹 풀(dynamic_hook_pool.json)에서 
+    시간 감쇄 가중치(Score) 기반 확률적 샘플링(Weighted Sampling)으로 최적의 후킹 추출
+    """
+    pool = load_dynamic_hook_pool()
+    candidates = pool.get(category, [])
     
-    # 1. 신발 / 러닝 / 트레킹 / 아웃도어
-    if category == 'SHOES':
-        if any(k in t for k in ['러닝화', '런닝화', '러닝', '런닝', '운동화', '스니커즈']):
-            options = [
-                "요즘 러닝 많이 뛰는데 일반 운동화 신고 뛰는 사람 손? 🏃",
-                "러닝 크루 들어가려고 가성비 런닝화 찾고 있었다면 👟",
-                "발 편한 데일리 러닝화 찾다가 이건 진짜 줍줍각이라 공유함 👟",
-                "제발 브랜드 러닝화 정가 10만원씩 다 주고 사지 마세요 🫢"
-            ]
-        elif any(k in t for k in ['트레킹화', '등산화', '고어텍스']):
-            options = [
-                "요즘 날씨 좋아서 주말마다 등산·트레킹 가시는 분들 🥾",
-                "가볍고 발목 탄탄하게 잡아주는 트레킹화 찾는다면 🏔️",
-                "고어텍스 트레킹화가 이 가격에 풀린 건 담당자 실수 아닌가... 👀",
-                "조금만 오래 걸어도 발바닥 아프고 피로 쉽게 쌓이는 사람 손? 👟"
-            ]
-        else:
-            options = [
-                "출퇴근할 때 매일 편하게 막 신을 데일리 슈즈 찾는다면 👟",
-                "제발 브랜드 신발 정가 다 주고 사지 마세요 🫢",
-                "조금만 걸어도 발바닥 아프고 피로 쉽게 쌓이는 사람 손? 👟"
-            ]
-        return random.choice(options)
+    # 해당 카테고리가 비어있으면 GENERAL 풀 활용
+    if not candidates:
+        candidates = pool.get('GENERAL', [])
         
-    # 2. 디지털 / 게이밍 (배그/발로란트 사플, 데스크테리어)
-    if category == 'DIGITAL_TECH':
-        if any(k in t for k in ['헤드셋', '이어폰', '헤드폰', '독거미', '게이밍']):
-            options = [
-                "요즘 배그나 발로란트 할 때 사플 안 돼서 답답했던 사람? 🎧",
-                "게임할 때 선 걸리적거리고 충전 깜빡해서 꺼진 적 다들 있지? 🎧",
-                "충전독까지 주는 무선 헤드셋인데 이 가격이면 담당자 실수인 듯 🫢",
-                "비싼 브랜드 헤드셋 쓰다가 이거 스펙 보고 현타 왔음... 🎧"
-            ]
-        elif any(k in t for k in ['키보드', '마우스', '모니터', '거치대']):
-            options = [
-                "책상 위 지저분한 선 정리하고 감성 데스크테리어 맞출 타이밍 ⚡",
-                "게임 장비 욕심 있는 분들 지금 역대급 가성비 떴습니다 💻",
-                "장시간 PC 작업할 때 손목 피로했던 사람 손? ⌨️"
-            ]
-        else:
-            options = [
-                "비싼 전자기기 거품가 다 주고 사면 진짜 아까움 ⚡",
-                "책상 위 복잡한 충전선 때문에 스트레스 받는 사람 손? ⚡",
-                "가성비 끝판왕 IT 장비 찾고 있었다면 💻"
-            ]
-        return random.choice(options)
-        
-    # 3. 생활용품 / 세제 (러닝 땀냄새, 자취 살림)
-    if category == 'LIVING':
-        if any(k in t for k in ['세제', '섬유유연제', '피죤', '다우니', '퍼실', '리큐', '테크']):
-            options = [
-                "요즘 러닝·헬스하느라 땀 많이 날 텐데 땀냄새 싹 지우려면 이거 써야 함 🧼",
-                "빨래 꿉꿉한 냄새 한 방에 잡는 대용량 섬유유연제 역대급 단가 떴음 🧺",
-                "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
-                "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼"
-            ]
-        elif any(k in t for k in ['휴지', '화장지', '물티슈', '롤휴지']):
-            options = [
-                "집에 떨어지면 불안해서 박스로 쟁여둬야 마음 편한 필수템 📦",
-                "자취생 필수템! 마트에서 무겁게 들고 오지 말고 문 앞 배송으로 쟁여둘 타이밍 🧻",
-                "생필품은 핫딜 떴을 때 박스 단위로 사두는 게 진짜 돈 버는 거임 ✨"
-            ]
-        else:
-            options = [
-                "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
-                "집에 떨어지면 불안해서 박스로 쟁여둬야 마음 편한 필수템 📦",
-                "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼"
-            ]
-        return random.choice(options)
-        
-    # 4. 식품 / 간편식 (오운완 식단, 넷플릭스 야식, 밥 차리기 귀찮을 때)
-    if category in ('FOOD_PROCESSED', 'FOOD_FRESH'):
-        if any(k in t for k in ['닭가슴살', '프로틴', '단백질', '소고기', '한우', '삼겹살']):
-            options = [
-                "운동하는 사람 손!! 식단 나랑 같이하자 💪",
-                "오운완 후 단백질 채워둘 식단 비상식량 최저가 떴음 🍗",
-                "외식 한 번 참는 가격으로 고기 배 터지게 먹는 꿀템 🥩",
-                "닭가슴살 물려서 식단 고민이었다면 지금이 쟁여둘 타이밍 😋"
-            ]
-        elif any(k in t for k in ['만두', '교자', '피자', '치킨', '너겟', '라면', '대창', '곱창', '전골']):
-            options = [
-                "퇴근하고 밥 차리기 귀찮을 때 배달비 아끼는 치트키 🍜",
-                "주말에 넷플릭스 보면서 맥주 한잔 곁들일 꿀맛 안주 찾는다면 🍺",
-                "배달앱 켤 때마다 2~3만원씩 깨지는데 이럴 때 냉동실 채워둬야 함 🥟",
-                "출출할 때 바로 꺼내먹는 야식용 비상식량 최저가 떴길래 공유함 😋"
-            ]
-        elif any(k in t for k in ['과일', '귤', '감귤', '사과', '복숭아']):
-            options = [
-                "요즘 장바구니 과일 물가 살벌한데 마트 반값 수준으로 풀림 🍎",
-                "집에서 상큼하게 비타민 충전할 제철 과일 산지직송급 특가 🍊",
-                "마트 가면 과일 하나 집기도 겁나는데 역대급 단가 떴음 🛒"
-            ]
-        else:
-            options = [
-                "요즘 장바구니 물가 무서운데 마트 반값 수준으로 풀린 먹거리 🛒",
-                "퇴근하고 밥 차리기 귀찮을 때 배달비 아끼는 치트키 🍜",
-                "냉동실에 쟁여두면 출출할 때 든든한 야식/반찬 비상식량 🥟"
-            ]
-        return random.choice(options)
-        
-    # 5. 음료 / 커피 / 간식 (오운완 제로음료, 홈카페)
-    if category == 'BEVERAGE_SNACK':
-        if any(k in t for k in ['제로', '탄산수', '음료', '콜라', '사이다']):
-            options = [
-                "운동 끝나고 시원하게 마실 제로 음료 박스로 채워둘 타이밍 🧊",
-                "한 캔에 이 가격이면 편의점 반값도 안 되는 수준 🔥",
-                "물·음료 떨어질 때마다 무겁게 들고 오지 말고 문 앞 배송으로 쟁여두자 🧃"
-            ]
-        elif any(k in t for k in ['커피', '원두', '캡슐', '카누', '아메리카노']):
-            options = [
-                "하루 커피 2잔씩 마시는데 매달 커피값 10만원씩 깨지는 사람? ☕",
-                "홈카페 차려두고 출근길 텀블러에 타서 커피값 굳힐 타이밍 ☕",
-                "매일 마시는 커피 편의점/카페 가격 아까웠다면 무조건 확인 ☕"
-            ]
-        else:
-            options = [
-                "매일 마시는 커피·음료 편의점 가격 아까웠던 사람? ☕",
-                "물·음료 떨어질 때마다 무겁게 들고 오지 말고 박스로 쟁여둘 타이밍 🧊",
-                "탕비실/냉장고 채워둘 음료 단가 계산해보고 바로 긁었음 🧃"
-            ]
-        return random.choice(options)
-        
-    # 6. 뷰티 (야외 러닝 자외선/피부 진정, 올영 랭킹)
-    if category == 'BEAUTY':
-        options = [
-            "야외 러닝이나 운동하고 자외선에 지친 피부 진정시킬 타이밍 🧴",
-            "올영 세일 때도 이 가격은 안 나왔으니 정가 주지 마세요 💄",
-            "환절기만 되면 피부 땅기고 건조해서 고민인 사람 손? 🧴",
-            "공병 몇 개째 비우는 인생템인데 최저가 떴길래 공유함 ✨"
+    if not candidates:
+        # 풀 파일이 없거나 비어있는 경우 안전 폴백
+        fallback_hooks = [
+            "살까 말까 고민하면서 장바구니에만 넣어뒀던 분들 주목 👀",
+            "제발 제값 다 주고 사지 마세요! 실시간 최저가 떴습니다 🔥",
+            "담당자가 할인 쿠폰 중복 적용 풀어둔 듯... 실시간 품절 각 ⚡"
         ]
-        return random.choice(options)
-        
-    # 7. 키즈 / 육아
-    if category == 'KIDS':
-        options = [
-            "애들은 금방 쑥쑥 커서 옷 제값 다 주고 사면 제일 아까움 👶",
-            "우리 아이 편하게 입힐 데일리 등원룩/외출복 찾는다면 🍼",
-            "놀이터용 막 입히는 옷 찾다가 가성비 미쳐서 바로 담음 🧸",
-            "브랜드 키즈 의류가 보세 옷보다 싸게 풀린 거 실화인가 👀"
-        ]
-        return random.choice(options)
-        
-    # 8. 가전 / 패션 / 일반
-    if category == 'HOME_APPLIANCE':
-        options = [
-            "퇴근 후 집안일 시간 확 줄여주는 삶의 질 상승 가전 🏠",
-            "대기업 비싼 가전 살 필요 없이 실속형으로 뽕 뽑는 템 ⚡",
-            "이 가격에 이 기능이면 진작 살 걸 그랬음... 가성비 종결 🔥"
-        ]
-        return random.choice(options)
-        
-    if category == 'FASHION':
-        options = [
-            "요즘 유행하는 고프코어/러닝용으로 편하게 입을 기본템 찾는다면 👕",
-            "옷장은 꽉 찼는데 매번 입을 옷 없어서 고민인 사람? 👕",
-            "백화점 브랜드 옷 정가 다 주고 사면 바보 되는 이유 👀"
-        ]
-        return random.choice(options)
-        
-    options = [
-        "살까 말까 고민하면서 장바구니에만 넣어뒀던 분들 주목 👀",
-        "제발 제값 다 주고 사지 마세요! 실시간 최저가 떴습니다 🔥",
-        "담당자가 할인 쿠폰 중복 적용 풀어둔 듯... 실시간 품절 각 ⚡"
-    ]
-    return random.choice(options)
+        return random.choice(fallback_hooks)
+
+    # 가중치 기반 샘플링: 최신 트렌드/고반응 후킹일수록 더 높은 확률로 채택
+    hooks = [item['hook'] for item in candidates]
+    weights = [max(0.1, float(item.get('weight', 1.0))) for item in candidates]
+    
+    selected = random.choices(hooks, weights=weights, k=1)[0]
+    return selected
 
 def build_product_price_line(clean_name: str, price: int | None, qty: int | None, unit: str | None) -> str:
     """물품 소개 + 가격 1줄 생성"""
@@ -333,11 +216,28 @@ def build_product_price_line(clean_name: str, price: int | None, qty: int | None
     else:
         return f"👉 {clean_name} {price:,}원 (정상가 대비 {discount_rate}% 할인)"
 
-def format_threads_post(title: str, product_link: str) -> tuple[str, str]:
+def extract_deal_context_tag(context_text: str) -> str:
+    """원문 맥락(Track 1/2)에서 핵심 구매/할인 조건 태그 추출"""
+    if not context_text:
+        return ""
+    text_lower = context_text.lower()
+    if '역대가' in text_lower or '역대급' in text_lower:
+        return "🔥 역대급 최저가"
+    if '체감가' in text_lower:
+        return "✨ 체감가 기준"
+    if any(k in text_lower for k in ['카드', '청구할인', '페이']):
+        return "💳 결제/카드 혜택"
+    if '쿠폰' in text_lower:
+        return "🎫 쿠폰 중복적용"
+    if '한정' in text_lower:
+        return "⚡ 한정 수량 특가"
+    return ""
+
+def format_threads_post(title: str, product_link: str, context_text: str = "") -> tuple[str, str]:
     """
-    쇼츠/스레드 초압축 3단 포맷터:
+    쇼츠/스레드 초압축 3단 포맷터 (듀얼 트랙 정보 해상도 강화):
     1) 트렌드 취미/라이프스타일 연계 공감 후킹 (1줄)
-    2) 물품 소개 + 가격 (1줄)
+    2) 물품 소개 + 가격 + 핵심 조건 태그 (1줄)
     3) 구매 링크 안내 (1줄)
     """
     clean_name = clean_title_for_display(title)
@@ -347,6 +247,11 @@ def format_threads_post(title: str, product_link: str) -> tuple[str, str]:
     
     product_line = build_product_price_line(clean_name, price, qty, unit)
     
+    # 원문 맥락에서 추출한 조건 태그 결합 (정보 해상도 극대화)
+    context_tag = extract_deal_context_tag(context_text)
+    if context_tag and context_tag not in product_line:
+        product_line = f"{product_line} [{context_tag}]"
+        
     root_lines = [
         hook,
         product_line,
