@@ -1,127 +1,53 @@
 {
   "metadata": {
-    "last_updated": "2026-09-15T11:30:43.181340+09:00",
+    "last_updated": "2026-09-16T02:48:27.150594+09:00",
     "half_life_days": 14.0,
-    "total_timeline_records": 29,
+    "total_timeline_records": 32,
     "top_emerging_keywords": [
       "주고",
+      "최저가",
       "찾는다면",
       "제발",
       "제값",
       "사지",
       "마세요",
       "실시간",
-      "최저가",
       "떴습니다",
-      "백화점"
+      "요즘"
     ]
   },
   "hooks": {
-    "FOOD_PROCESSED": [
+    "SHOES": [
       {
-        "hook": "퇴근하고 밥 차리기 귀찮을 때 배달비 아끼는 치트키 🍜",
-        "weight": 3.18,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "주말에 넷플릭스 보면서 맥주 한잔 곁들일 꿀맛 안주 찾는다면 🍺",
-        "weight": 3.11,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "🔥 가격 내려가면 못 참지",
-        "weight": 2.81,
-        "source": "@goodpicknote"
-      },
-      {
-        "hook": "배달앱 켤 때마다 2~3만원씩 깨지는데 이럴 때 냉동실 채워둬야 함 🥟",
+        "hook": "제발 브랜드 러닝화 정가 10만원씩 다 주고 사지 마세요 🫢",
         "weight": 0.7,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "요즘 러닝 많이 뛰는데 일반 운동화 신고 뛰는 사람 손? 🏃",
+        "weight": 0.6,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "러닝 크루 들어가려고 가성비 런닝화 찾고 있었다면 👟",
+        "weight": 0.5,
         "source": "seed_baseline"
       }
     ],
-    "BEVERAGE_SNACK": [
+    "KIDS": [
       {
-        "hook": "하루 커피 2잔씩 마시는데 매달 커피값 10만원씩 깨지는 사람? ☕",
+        "hook": "🍳 매일 뭐 먹지? 여기서 골라요",
+        "weight": 2.5,
+        "source": "@goodpicknote"
+      },
+      {
+        "hook": "애들은 금방 쑥쑥 커서 옷 제값 다 주고 사면 제일 아까움 👶",
         "weight": 0.8,
         "source": "seed_baseline"
       },
       {
-        "hook": "운동 끝나고 시원하게 마실 제로 음료 박스로 채워둘 타이밍 🧊",
+        "hook": "브랜드 키즈 의류가 보세 옷보다 싸게 풀린 거 실화인가 👀",
         "weight": 0.7,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "물·음료 떨어질 때마다 무겁게 들고 오지 말고 박스로 쟁여둘 타이밍 🧃",
-        "weight": 0.6,
-        "source": "seed_baseline"
-      }
-    ],
-    "GENERAL": [
-      {
-        "hook": "제발 제값 다 주고 사지 마세요! 실시간 최저가 떴습니다 🔥",
-        "weight": 3.66,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "살까 말까 고민하면서 장바구니에만 넣어뒀던 분들 주목 👀",
-        "weight": 3.04,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "쓰레드 계정만 현재 운영중입니다.",
-        "weight": 3.01,
-        "source": "@bang100_e"
-      },
-      {
-        "hook": "사칭 조심하세요. DM 먼저 안드립니다.",
-        "weight": 2.96,
-        "source": "@bang100_e"
-      },
-      {
-        "hook": "피드메이커라는 기회를 만났고,",
-        "weight": 2.93,
-        "source": "@jaeha.house"
-      },
-      {
-        "hook": "블로그로 제2인생 살고 있습니다.",
-        "weight": 2.88,
-        "source": "@jaeha.house"
-      },
-      {
-        "hook": "쿠팡파트너스 어떻게 시작하냐고",
-        "weight": 2.86,
-        "source": "@goodpicknote"
-      },
-      {
-        "hook": "처음 시작하는 사람은",
-        "weight": 2.45,
-        "source": "@goodpicknote"
-      },
-      {
-        "hook": "먼저 계정 하나 만들고",
-        "weight": 2.45,
-        "source": "@goodpicknote"
-      },
-      {
-        "hook": "1등. 그리고 5,000만 원.",
-        "weight": 2.45,
-        "source": "@jaeha.house"
-      }
-    ],
-    "LIVING": [
-      {
-        "hook": "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼",
-        "weight": 0.8,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "요즘 러닝·헬스하느라 땀 많이 날 텐데 땀냄새 싹 지우려면 이거 써야 함 🧼",
-        "weight": 0.7,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
-        "weight": 0.6,
         "source": "seed_baseline"
       }
     ],
@@ -142,35 +68,6 @@
         "source": "seed_baseline"
       }
     ],
-    "FASHION": [
-      {
-        "hook": "백화점 브랜드 옷 정가 다 주고 사면 바보 되는 이유 👀",
-        "weight": 3.66,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "요즘 유행하는 고프코어/러닝용으로 편하게 입을 기본템 찾는다면 👕",
-        "weight": 3.56,
-        "source": "@my_threads_top"
-      }
-    ],
-    "FOOD_FRESH": [
-      {
-        "hook": "운동하는 사람 손!! 식단 나랑 같이하자 💪",
-        "weight": 0.8,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "오운완 후 단백질 채워둘 식단 비상식량 최저가 떴음 🍗",
-        "weight": 0.7,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "요즘 장바구니 과일 물가 살벌한데 마트 반값 수준으로 풀림 🍎",
-        "weight": 0.6,
-        "source": "seed_baseline"
-      }
-    ],
     "BEAUTY": [
       {
         "hook": "올영 세일 때도 이 가격은 안 나왔으니 정가 주지 마세요 💄",
@@ -183,38 +80,141 @@
         "source": "seed_baseline"
       }
     ],
-    "KIDS": [
+    "FOOD_FRESH": [
       {
-        "hook": "🍳 매일 뭐 먹지? 여기서 골라요",
-        "weight": 2.58,
-        "source": "@goodpicknote"
+        "hook": "오운완 후 단백질 채워둘 식단 비상식량 최저가 떴음 🍗",
+        "weight": 3.58,
+        "source": "@my_threads_top"
       },
       {
-        "hook": "애들은 금방 쑥쑥 커서 옷 제값 다 주고 사면 제일 아까움 👶",
+        "hook": "운동하는 사람 손!! 식단 나랑 같이하자 💪",
         "weight": 0.8,
         "source": "seed_baseline"
       },
       {
-        "hook": "브랜드 키즈 의류가 보세 옷보다 싸게 풀린 거 실화인가 👀",
+        "hook": "요즘 장바구니 과일 물가 살벌한데 마트 반값 수준으로 풀림 🍎",
+        "weight": 0.6,
+        "source": "seed_baseline"
+      }
+    ],
+    "FOOD_PROCESSED": [
+      {
+        "hook": "퇴근하고 밥 차리기 귀찮을 때 배달비 아끼는 치트키 🍜",
+        "weight": 3.08,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "주말에 넷플릭스 보면서 맥주 한잔 곁들일 꿀맛 안주 찾는다면 🍺",
+        "weight": 3.01,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "🔥 가격 내려가면 못 참지",
+        "weight": 2.73,
+        "source": "@goodpicknote"
+      },
+      {
+        "hook": "배달앱 켤 때마다 2~3만원씩 깨지는데 이럴 때 냉동실 채워둬야 함 🥟",
         "weight": 0.7,
         "source": "seed_baseline"
       }
     ],
-    "SHOES": [
+    "LIVING": [
       {
-        "hook": "제발 브랜드 러닝화 정가 10만원씩 다 주고 사지 마세요 🫢",
+        "hook": "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼",
+        "weight": 0.8,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "요즘 러닝·헬스하느라 땀 많이 날 텐데 땀냄새 싹 지우려면 이거 써야 함 🧼",
         "weight": 0.7,
         "source": "seed_baseline"
       },
       {
-        "hook": "요즘 러닝 많이 뛰는데 일반 운동화 신고 뛰는 사람 손? 🏃",
+        "hook": "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
         "weight": 0.6,
+        "source": "seed_baseline"
+      }
+    ],
+    "GENERAL": [
+      {
+        "hook": "제발 제값 다 주고 사지 마세요! 실시간 최저가 떴습니다 🔥",
+        "weight": 3.55,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "살까 말까 고민하면서 장바구니에만 넣어뒀던 분들 주목 👀",
+        "weight": 2.95,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "쓰레드 계정만 현재 운영중입니다.",
+        "weight": 2.91,
+        "source": "@bang100_e"
+      },
+      {
+        "hook": "사칭 조심하세요. DM 먼저 안드립니다.",
+        "weight": 2.87,
+        "source": "@bang100_e"
+      },
+      {
+        "hook": "피드메이커라는 기회를 만났고,",
+        "weight": 2.84,
+        "source": "@jaeha.house"
+      },
+      {
+        "hook": "블로그로 제2인생 살고 있습니다.",
+        "weight": 2.8,
+        "source": "@jaeha.house"
+      },
+      {
+        "hook": "쿠팡파트너스 어떻게 시작하냐고",
+        "weight": 2.77,
+        "source": "@goodpicknote"
+      },
+      {
+        "hook": "처음 시작하는 사람은",
+        "weight": 2.38,
+        "source": "@goodpicknote"
+      },
+      {
+        "hook": "먼저 계정 하나 만들고",
+        "weight": 2.38,
+        "source": "@goodpicknote"
+      },
+      {
+        "hook": "1등. 그리고 5,000만 원.",
+        "weight": 2.38,
+        "source": "@jaeha.house"
+      }
+    ],
+    "BEVERAGE_SNACK": [
+      {
+        "hook": "하루 커피 2잔씩 마시는데 매달 커피값 10만원씩 깨지는 사람? ☕",
+        "weight": 0.8,
         "source": "seed_baseline"
       },
       {
-        "hook": "러닝 크루 들어가려고 가성비 런닝화 찾고 있었다면 👟",
-        "weight": 0.5,
+        "hook": "운동 끝나고 시원하게 마실 제로 음료 박스로 채워둘 타이밍 🧊",
+        "weight": 0.7,
         "source": "seed_baseline"
+      },
+      {
+        "hook": "물·음료 떨어질 때마다 무겁게 들고 오지 말고 박스로 쟁여둘 타이밍 🧃",
+        "weight": 0.6,
+        "source": "seed_baseline"
+      }
+    ],
+    "FASHION": [
+      {
+        "hook": "요즘 유행하는 고프코어/러닝용으로 편하게 입을 기본템 찾는다면 👕",
+        "weight": 3.61,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "백화점 브랜드 옷 정가 다 주고 사면 바보 되는 이유 👀",
+        "weight": 3.54,
+        "source": "@my_threads_top"
       }
     ],
     "HOME_APPLIANCE": [
