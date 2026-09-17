@@ -1,31 +1,46 @@
-# persona_agent.py
-# 계정 웜업용 스레드 일상글 자동 생성 에이전트
-
+import sys
 import random
 import google.generativeai as genai
+from datetime import datetime
 from config import GEMINI_API_KEY
 
-# API 키가 없거나 할당량 초과 시 사용할 고품질 Fallback 데이터셋 (2030 한국인 감성 100%)
-FALLBACK_POSTS = [
-    "비 오니까 출근길 지옥철 벌써부터 두렵다.. 다들 우산 챙기셨나요 ㅠㅠ",
-    "오늘 점심은 무조건 제육이다. 직장인 점심메뉴 국룰 인정? ㅋㅋ",
-    "월요일 아침부터 회의 3개 연속.. 정신 나가겠네 😇 커피 수혈 시급함",
-    "요즘 날씨 왜 이러지? 어제는 덥더니 오늘은 춥고.. 옷 입기 너무 애매함",
-    "퇴근 마렵다.. 아직 3시밖에 안 됐다니 시계 고장난 거 아님? ⏰",
-    "주말에 하루종일 넷플릭스만 보고 누워있었는데 벌써 일요일 밤이라니 ㅠㅠ",
-    "아침에 알람 못 들어서 지각할 뻔.. 땀 뻘뻘 흘리면서 뛰어옴 🏃‍♂️💨",
-    "요즘 런닝 시작했는데 작심삼일 될까봐 걱정.. 오운완 성공하신 분들 팁 좀요!",
-    "퇴근하고 치맥 땡기는데 같이 먹을 사람이 없네.. 혼맥이나 해야겠다 🍺",
-    "배달비 너무 비싸서 포장하러 나왔는데 걷기 귀찮아 죽겠음.. ㅋㅋㅋ"
-]
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
+def get_fallback_post() -> str:
+    hour = datetime.now().hour
+    if 6 <= hour < 12:
+        return random.choice([
+            "아침에 알람 못 들어서 지각할 뻔.. 땀 뻘뻘 흘리면서 뛰어옴 🏃‍♂️💨",
+            "출근길 지옥철 진짜 숨막힌다.. 다들 화이팅 ㅠㅠ",
+            "아침부터 회의 3개 연속.. 정신 나가겠네 😇 커피 수혈 시급함"
+        ])
+    elif 12 <= hour < 17:
+        return random.choice([
+            "오늘 점심은 무조건 제육이다. 직장인 점심메뉴 국룰 인정? ㅋㅋ",
+            "밥 먹고 나니까 식곤증 장난 아니네.. 퇴근 마렵다 😪",
+            "오후 되니까 당 떨어지네.. 아이스 아메리카노 하나 때려야겠다 ☕"
+        ])
+    elif 17 <= hour < 22:
+        return random.choice([
+            "퇴근 마렵다.. 시간 왜 이렇게 안 가냐 시계 고장난 거 아님? ⏰",
+            "퇴근하고 치맥 땡기는데 같이 먹을 사람이 없네.. 혼맥이나 해야겠다 🍺",
+            "배달비 너무 비싸서 포장하러 나왔는데 걷기 귀찮아 죽겠음.. ㅋㅋㅋ"
+        ])
+    else:
+        return random.choice([
+            "아직 안 자고 폰 보는 사람? 내일 출근 우짜지 ㅋㅋㅋ",
+            "요즘 런닝 시작했는데 작심삼일 될까봐 걱정.. 오운완 성공하신 분들 팁 좀요!",
+            "주말 넷플릭스 정주행 하느라 수면패턴 다 망가짐 ㅠㅠ 다들 굿밤되세요 🌙"
+        ])
 
 def generate_daily_life_post() -> str:
     """
     LLM을 사용하여 한국인 2030 페르소나의 일상글 생성.
-    API 호출 실패 시 Fallback 데이터셋 사용.
+    API 호출 실패 시 시간대별 Fallback 데이터셋 사용.
     """
     if not GEMINI_API_KEY:
-        return random.choice(FALLBACK_POSTS)
+        return get_fallback_post()
 
     genai.configure(api_key=GEMINI_API_KEY)
     
@@ -37,18 +52,21 @@ def generate_daily_life_post() -> str:
     }
     
     model = genai.GenerativeModel(
-        model_name="gemini-2.5-flash",
+        model_name="gemini-3.6-flash",
         generation_config=generation_config,
     )
     
-    prompt = """
+    current_time_str = datetime.now().strftime("%Y년 %m월 %d일 %H시 %M분")
+    
+    prompt = f"""
     당신은 한국의 20대~30대 평범한 직장인/대학생입니다.
+    현재 시간은 {current_time_str} 입니다.
     스레드(Threads)에 올릴 짧고 자연스러운 일상글을 딱 1~2문장으로 작성해주세요.
     
     [규칙]
-    1. 해시태그 절대 금지, 이모지 1~2개만 자연스럽게 사용.
-    2. 너무 작위적이거나 AI 티가 나는 명언, 긍정적인 다짐 금지.
-    3. 퇴근 마려움, 점심 고민, 피곤함, 지옥철, 주말 순삭, 날씨 투정 등 현실적인 한국인 감성.
+    1. 현재 시간대(아침 출근, 점심, 오후 졸음, 퇴근길, 저녁, 심야)에 완벽하게 맞는 내용이어야 합니다.
+    2. 해시태그 절대 금지, 이모지 1~2개만 자연스럽게 사용.
+    3. 너무 작위적이거나 AI 티가 나는 명언, 긍정적인 다짐 금지.
     4. 친근한 반말이나 편한 존댓말 섞어서 사용.
     5. 바로 복사해서 올릴 수 있도록 텍스트만 출력하세요.
     """
@@ -62,7 +80,7 @@ def generate_daily_life_post() -> str:
     except Exception as e:
         print(f"[Persona Agent] LLM 생성 실패, Fallback 사용: {e}")
         
-    return random.choice(FALLBACK_POSTS)
+    return get_fallback_post()
 
 if __name__ == "__main__":
     print(generate_daily_life_post())
