@@ -17,14 +17,15 @@ if os.path.exists(env_path):
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8755228376:AAFrFW7YEOhMAsMtbfAkcj54MVzc4jImUIA")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "7255527272")
 
-# 2. 쿠팡 파트너스 설정
-COUPANG_AF_ID = os.getenv("COUPANG_AF_ID", "AF9052431")
+# 2. 토스 쉐어링크 API 설정
+TOSS_ACCESS_KEY = os.getenv("TOSS_ACCESS_KEY", "")
+TOSS_SECRET_KEY = os.getenv("TOSS_SECRET_KEY", "")
 
 # 3. 스레드(Threads) API 설정 (Meta Graph API)
 # .env 파일이나 GitHub Actions Secrets에서 로드됩니다.
 THREADS_ACCESS_TOKEN = os.getenv("THREADS_ACCESS_TOKEN", "")
 THREADS_USER_ID = os.getenv("THREADS_USER_ID", "")
-ENABLE_THREADS_POSTING = os.getenv("ENABLE_THREADS_POSTING", "true").lower() in ("true", "1", "yes")
+ENABLE_THREADS_POSTING = os.getenv("ENABLE_THREADS_POSTING", "false").lower() in ("true", "1", "yes")
 
 
 
