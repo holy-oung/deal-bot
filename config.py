@@ -37,3 +37,6 @@ MAX_HISTORY_ITEMS = int(os.getenv("MAX_HISTORY_ITEMS", "1000"))          # 중�
 # 예: ["라면", "커피", "생수", "모니터", "맥북"]
 KEYWORD_FILTERS = []
 
+# 5. 계정 웜업 및 일상글 페르소나 설정
+WARMUP_MODE = os.getenv("WARMUP_MODE", "true").lower() in ("true", "1", "yes") # 웜업 모드 켜기 (핫딜 발행 대신 일상글 발행)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "") # 일상글 생성용 Gemini API 키

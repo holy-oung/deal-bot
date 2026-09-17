@@ -9,13 +9,14 @@ import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime, timedelta, timezone
 
-from config import CHECK_INTERVAL_SECONDS, KEYWORD_FILTERS
+from config import CHECK_INTERVAL_SECONDS, KEYWORD_FILTERS, WARMUP_MODE
 from history import load_sent_deals, save_sent_deals
 from scraper import fetch_latest_deals, fetch_direct_product_link, fetch_deal_details, is_monetizable_deal
-from link_helper import get_product_link
+from link_helper import get_product_link, is_toss_deal
 from copywriter import format_post, format_threads_post
 from notifier import send_deal_alert
 from threads_poster import post_to_threads, is_threads_configured, validate_threads_credentials
+from persona_agent import generate_daily_life_post
 
 # Render Web Service 무료 티어 유지를 위한 경량 헬스체크 HTTP 핸들러
 class HealthCheckHandler(BaseHTTPRequestHandler):
@@ -53,13 +54,36 @@ if hasattr(sys.stdout, 'reconfigure'):
 def run_pipeline(sent_deals: set, last_post_time: float = 0.0) -> tuple[int, float]:
     """새로운 핫딜을 탐색하고 전송하는 1회 주기 실행 함수"""
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{now_str}] 핫딜 목록 확인 중...")
+    
+    if WARMUP_MODE:
+        print(f"[{now_str}] 🧘 [웜업 모드] 일상글 자동화 구동 중...")
+    else:
+        print(f"[{now_str}] 핫딜 목록 확인 중...")
     
     if is_night_sleep_time():
         kst_now = (datetime.now(timezone.utc) + timedelta(hours=9)).strftime("%H:%M")
         print(f"  🌙 [심야 취침 모드 ({kst_now} KST)] 유저 반응 골든타임 사장 방지를 위해 대기합니다.")
         return 0, last_post_time
         
+    if WARMUP_MODE:
+        # 웜업 모드일 때는 핫딜 수집을 건너뛰고, 하루 1~2개 정도의 빈도로 일상글만 업로드합니다.
+        # 대략 8~12시간(28800~43200초) 간격으로 동작
+        elapsed = time.time() - last_post_time
+        WARMUP_INTERVAL = 36000  # 10시간
+        if last_post_time > 0 and elapsed < WARMUP_INTERVAL:
+            print(f"  ⏳ [웜업 모드] 마지막 일상글 작성 후 {int(elapsed/3600)}시간 경과. {int((WARMUP_INTERVAL - elapsed)/3600)}시간 뒤 다음 일상글을 작성합니다.")
+            return 0, last_post_time
+            
+        print("  📝 [웜업 모드] 새로운 일상글을 생성하고 업로드합니다...")
+        daily_text = generate_daily_life_post()
+        threads_res = post_to_threads(root_text=daily_text)
+        if threads_res.get('success'):
+            print(f"  ✅ [웜업 모드] 일상글 작성 완료: {daily_text}")
+            return 1, time.time()
+        else:
+            print(f"  ❌ [웜업 모드] 일상글 작성 실패")
+            return 0, last_post_time
+
     deals = fetch_latest_deals()
     if not deals:
         print("  -> 수집된 핫딜이 없습니다.")
@@ -104,6 +128,12 @@ def run_pipeline(sent_deals: set, last_post_time: float = 0.0) -> tuple[int, flo
             print(f"  [수익화 불가 제외 (상세)] {deal['title']} -> {reason}")
             sent_deals.add(deal_id)
             continue
+            
+        # [토스 전용(Toss Only) 검사] 토스 원본 도메인이 아니면 무조건 스킵
+        if 'toss.im' not in direct_url.lower() and 'toss.com' not in direct_url.lower():
+            print(f"  [토스 전용 필터링] {deal['title']} -> 토스가 아닌 외부 쇼핑몰 제외 ({direct_url})")
+            sent_deals.add(deal_id)
+            continue
         
         # 도배 방지 쿨타임 검사 (마지막 스레드 발행 후 최소 10분 간격 유지)
         elapsed = time.time() - last_post_time
@@ -112,7 +142,7 @@ def run_pipeline(sent_deals: set, last_post_time: float = 0.0) -> tuple[int, flo
             print(f"  ⏳ [도배 방지 쿨타임] 마지막 발행 후 {int(elapsed)}초 경과. 스레드 계정 보호를 위해 {remain}초 후 다음 턴에 발행합니다.")
             break
 
-        # 5. 최적의 제품 구매 링크 결정 (100% 쿠팡 파트너스 링크 반환)
+        # 5. 최적의 제품 구매 링크 결정 (토스 전용 트랙)
         product_link = get_product_link(direct_url, deal['title'])
         
         # 6. 후킹글 + 가격비교 + 제품링크 3단 구조 메시지 포맷팅
@@ -121,14 +151,20 @@ def run_pipeline(sent_deals: set, last_post_time: float = 0.0) -> tuple[int, flo
         # 7. 텔레그램 알림 발송
         success = send_deal_alert(deal, formatted_message)
         
-        # 8. 스레드(Threads) 2단 분리 자동 포스팅 (정보 해상도 강화 + 고해상도 이미지 또는 클린 텍스트 모드)
-        root_text, reply_text = format_threads_post(deal['title'], product_link, context_text=context_text)
-        threads_res = post_to_threads(root_text, reply_text, image_url=high_res_image)
+        # 8. 스레드(Threads) 2단 분리 자동 포스팅 (토스 쉐어링크만 업로드)
+        threads_res = {}
+        # 토스 링크일 때만 스레드에 업로드
+        if 'toss.im' in product_link or 'toss.com' in product_link:
+            root_text, reply_text = format_threads_post(deal['title'], product_link, context_text=context_text)
+            threads_res = post_to_threads(root_text, reply_text, image_url=high_res_image)
+            if threads_res.get('success'):
+                last_post_time = time.time()
+        else:
+            print(f"    ℹ️ [Threads 선별 제외] 비정상 링크 발급 실패건은 스레드 게시 제외")
         
         if success or threads_res.get('success'):
             sent_deals.add(deal_id)
             new_sent_count += 1
-            last_post_time = time.time()
             print(f"    -> 발송 완료! (ID: {deal_id})")
             time.sleep(2)  # 텔레그램 스팸 방지용 딜레이
         else:
@@ -162,23 +198,55 @@ def main():
 
     # 2. 스레드 단독 테스트 옵션
     if args.threads_test:
-        print("🧵 [테스트 모드] 최신 핫딜 중 수익화 가능한 1건으로 스레드 포스팅을 테스트합니다.")
+        print("🧵 [테스트 모드] 방안 B 검증: 최신 핫딜 중 '쿠팡 100% 상세페이지 직행 핫딜' 1건을 검색합니다.")
         deals = fetch_latest_deals()
         target_deal = None
+        target_details = None
         for d in deals:
             can_monetize, _ = is_monetizable_deal(d['title'], d['ppom_url'])
             if can_monetize:
-                target_deal = d
-                break
-        if target_deal:
-            details = fetch_deal_details(target_deal['ppom_url'])
-            print(f"  [{details['image_reason']}]")
-            direct = details['direct_url']
+                details = fetch_deal_details(d['ppom_url'])
+                if is_coupang_deal(details['direct_url'], d['title']):
+                    target_deal = d
+                    target_details = details
+                    break
+
+        if not target_deal:
+            print("  ℹ️ 1페이지에 실시간 토스 핫딜이 없어, 이전 페이지에서 최근 토스 핫딜을 탐색합니다...")
+            # 2~4페이지 탐색
+            for p in range(2, 5):
+                import requests, bs4
+                p_url = f'https://www.ppomppu.co.kr/zboard/zboard.php?id=ppomppu&page={p}'
+                try:
+                    res = requests.get(p_url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=5)
+                    res.encoding = 'cp949'
+                    p_soup = bs4.BeautifulSoup(res.text, 'html.parser')
+                    for a in p_soup.select('a.baseList-title'):
+                        p_title = a.text.strip()
+                        if '토스' in p_title or 'toss' in p_title.lower():
+                            p_href = a.get('href', '')
+                            if not p_href.startswith('http'):
+                                p_href = 'https://www.ppomppu.co.kr/zboard/' + p_href
+                            det = fetch_deal_details(p_href)
+                            if is_toss_deal(det['direct_url'], p_title):
+                                target_deal = {'id': 'test_toss', 'title': p_title, 'ppom_url': p_href}
+                                target_details = det
+                                break
+                    if target_deal:
+                        break
+                except Exception:
+                    pass
+
+        if target_deal and target_details:
+            print(f"  🎯 대상 토스 핫딜: {target_deal['title']}")
+            print(f"  [{target_details['image_reason']}]")
+            direct = target_details['direct_url']
             link = get_product_link(direct, target_deal['title'])
-            root_text, reply_text = format_threads_post(target_deal['title'], link, context_text=details['context_text'])
-            post_to_threads(root_text, reply_text, image_url=details['high_res_image'])
+            print(f"  🔗 토스 상품 상세 직행 링크: {link}")
+            root_text, reply_text = format_threads_post(target_deal['title'], link, context_text=target_details['context_text'])
+            post_to_threads(root_text, reply_text, image_url=target_details['high_res_image'])
         else:
-            print("  -> 현재 수집된 핫딜 중 수익화 가능한 핫딜이 없습니다.")
+            print("  -> 최근 등록된 토스 핫딜이 없습니다.")
         return
 
     print("==================================================")

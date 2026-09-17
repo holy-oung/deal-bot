@@ -13,7 +13,7 @@ HEADERS = {
     'Referer': 'https://www.google.com/'
 }
 
-# 쿠팡 파트너스 수익화가 불가능한 비실물/금융/통신 키워드 블랙리스트
+# 토스 쉐어링크 수익화가 불가능한 비실물/금융/통신 키워드 블랙리스트
 NON_MONETIZABLE_KEYWORDS = [
     # 통신 / 알뜰폰 / 요금제
     '알뜰폰', '요금제', '유심', 'esim', '통신사', '번호이동', '기기변경', '회선', '데이터무제한',
@@ -36,7 +36,7 @@ NON_MONETIZABLE_DOMAINS = [
 ]
 
 def is_monetizable_deal(title: str, url: str = "") -> tuple[bool, str]:
-    """쿠팡 파트너스로 수익화가 가능한 실물 쇼핑 딜인지 검증"""
+    """토스 쉐어링크로 수익화가 가능한 실물 쇼핑 딜인지 검증"""
     title_lower = title.lower()
     for kw in NON_MONETIZABLE_KEYWORDS:
         if kw in title_lower:
