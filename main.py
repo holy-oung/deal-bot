@@ -14,7 +14,7 @@ from history import load_sent_deals, save_sent_deals
 from scraper import fetch_latest_deals, fetch_direct_product_link, fetch_deal_details, is_monetizable_deal
 from link_helper import get_product_link, is_toss_deal
 from copywriter import format_post, format_threads_post
-from notifier import send_deal_alert
+from notifier import send_deal_alert, send_telegram_message
 from threads_poster import post_to_threads, is_threads_configured, validate_threads_credentials
 from persona_agent import generate_daily_life_post
 
@@ -86,6 +86,7 @@ def run_pipeline(sent_deals: set, last_post_time: float = 0.0) -> tuple[int, flo
         threads_res = post_to_threads(root_text=daily_text)
         if threads_res.get('success'):
             print(f"  ✅ [웜업 모드] 일상글 작성 완료: {daily_text}")
+            send_telegram_message(f"✅ <b>[스레드 웜업 성공]</b>\n\n새로운 일상글이 방금 업로드되었습니다!\n\n📝 <b>내용:</b>\n{daily_text}")
             return 1, time.time()
         else:
             print(f"  ❌ [웜업 모드] 일상글 작성 실패")
