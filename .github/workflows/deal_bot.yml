@@ -1,10 +1,11 @@
 name: 🚀 Deal Bot Cloud Runner (무인 핫딜 알림기)
 
 on:
-  # schedule:
-  #   # 한국 시간(KST) 기준 피크타임(오전 8시 ~ 밤 12시) 동안 20분마다 자동 실행
-  #   # - cron: '*/20 23,0-15 * * *'
-  workflow_dispatch: # 깃허브 웹 화면에서 [Run workflow] 버튼 클릭 시 즉시 1회 실행
+  schedule:
+    # 한국 시간(KST) 기준 오전 8시 ~ 밤 12시(자정) 사이 매시간 정각에 실행 (UTC 23시~15시)
+    # 웜업 모드에서는 매시간 깨어나서 15% 확률로만 랜덤 포스팅합니다.
+    - cron: '0 23,0-15 * * *'
+  workflow_dispatch: # 깃허브 화면에서 [Run workflow] 버튼 클릭 시 즉시 1회 실행
 
 jobs:
   run-bot:
@@ -23,14 +24,17 @@ jobs:
 
       - name: 3. 필수 패키지 설치
         run: |
-          pip install requests beautifulsoup4
+          pip install -r requirements.txt
 
-      - name: 4. 핫딜 감시 및 텔레그램/스레드 발송 실행
+      - name: 4. 딜봇 실행 (웜업 모드)
         env:
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          WARMUP_MODE: "true"
+          ENABLE_THREADS_POSTING: "true"
         run: |
           python main.py --once
 

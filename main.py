@@ -66,13 +66,20 @@ def run_pipeline(sent_deals: set, last_post_time: float = 0.0) -> tuple[int, flo
         return 0, last_post_time
         
     if WARMUP_MODE:
-        # 웜업 모드일 때는 핫딜 수집을 건너뛰고, 하루 1~2개 정도의 빈도로 일상글만 업로드합니다.
-        # 대략 8~12시간(28800~43200초) 간격으로 동작
-        elapsed = time.time() - last_post_time
-        WARMUP_INTERVAL = 36000  # 10시간
-        if last_post_time > 0 and elapsed < WARMUP_INTERVAL:
-            print(f"  ⏳ [웜업 모드] 마지막 일상글 작성 후 {int(elapsed/3600)}시간 경과. {int((WARMUP_INTERVAL - elapsed)/3600)}시간 뒤 다음 일상글을 작성합니다.")
-            return 0, last_post_time
+        # 웜업 모드일 때는 핫딜 수집을 건너뛰고 일상글만 업로드합니다.
+        if os.getenv('GITHUB_ACTIONS') == 'true':
+            # 클라우드 환경(GitHub Actions): 매시간 크론이 깨우지만, 하루 평균 1~2개만 포스팅하도록 확률(15%) 적용
+            import random
+            if random.random() > 0.15:
+                print("  🎲 [웜업 모드] 이번 시간은 건너뜁니다. (인간다움을 위한 랜덤 스킵)")
+                return 0, last_post_time
+        else:
+            # 로컬 환경(run_local.bat): 10시간 고정 간격으로 동작
+            elapsed = time.time() - last_post_time
+            WARMUP_INTERVAL = 36000  # 10시간
+            if last_post_time > 0 and elapsed < WARMUP_INTERVAL:
+                print(f"  ⏳ [웜업 모드] 마지막 일상글 작성 후 {int(elapsed/3600)}시간 경과. {int((WARMUP_INTERVAL - elapsed)/3600)}시간 뒤 다음 일상글을 작성합니다.")
+                return 0, last_post_time
             
         print("  📝 [웜업 모드] 새로운 일상글을 생성하고 업로드합니다...")
         daily_text = generate_daily_life_post()
