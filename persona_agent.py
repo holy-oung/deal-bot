@@ -1,6 +1,7 @@
 import sys
 import random
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from datetime import datetime
 from config import GEMINI_API_KEY
 
@@ -42,19 +43,7 @@ def generate_daily_life_post() -> str:
     if not GEMINI_API_KEY:
         return get_fallback_post()
 
-    genai.configure(api_key=GEMINI_API_KEY)
-    
-    generation_config = {
-        "temperature": 0.8,
-        "top_p": 0.95,
-        "top_k": 40,
-        "max_output_tokens": 150,
-    }
-    
-    model = genai.GenerativeModel(
-        model_name="gemini-3.6-flash",
-        generation_config=generation_config,
-    )
+    client = genai.Client(api_key=GEMINI_API_KEY)
     
     current_time_str = datetime.now().strftime("%Y년 %m월 %d일 %H시 %M분")
     
@@ -68,14 +57,26 @@ def generate_daily_life_post() -> str:
     2. 해시태그 절대 금지, 이모지 1~2개만 자연스럽게 사용.
     3. 너무 작위적이거나 AI 티가 나는 명언, 긍정적인 다짐 금지.
     4. 친근한 반말이나 편한 존댓말 섞어서 사용.
-    5. 바로 복사해서 올릴 수 있도록 텍스트만 출력하세요.
+    
+    [가장 중요한 출력 조건]
+    반드시 스레드에 업로드할 '본문 텍스트' 단 한 줄(또는 두 줄)만 출력하세요. 
+    "Context", "Tone", "Here is the post" 같은 부연 설명이나 메타 데이터를 절대 포함하지 마세요. 큰따옴표(")도 출력하지 마세요.
     """
     
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model='gemini-3.6-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.8,
+                top_p=0.95,
+                top_k=40,
+                max_output_tokens=150,
+            )
+        )
         text = response.text.strip()
         text = text.strip('"').strip("'")
-        if text:
+        if text and not text.lower().startswith("context"):
             return text
     except Exception as e:
         print(f"[Persona Agent] LLM 생성 실패, Fallback 사용: {e}")
