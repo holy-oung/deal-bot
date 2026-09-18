@@ -2,7 +2,11 @@
 # Playwright를 이용한 쿠팡 파트너스 단축 링크 자동 생성 봇
 
 import os
+import sys
 from playwright.sync_api import sync_playwright
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
 
 def generate_coupang_link_via_ui(keyword: str, headless: bool = False) -> str:
     """
