@@ -47,9 +47,9 @@ jobs:
           python main.py --once
 
 
-      - name: 5. 발송 기록(sent_deals.json) 저장소에 자동 저장
+      - name: 5. 발송 기록 및 웜업 상태(sent_deals.json, warmup_state.json) 저장소에 자동 저장
         run: |
           git config --global user.name "deal-bot-cloud"
           git config --global user.email "bot@dealbot.local"
-          git add sent_deals.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 [자동기록] 핫딜 발송 히스토리 갱신" && git push)
+          git add sent_deals.json warmup_state.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 [자동기록] 핫딜 및 웜업 누적 확률 상태 갱신" && git push)

@@ -10,7 +10,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime, timedelta, timezone
 
 from config import CHECK_INTERVAL_SECONDS, KEYWORD_FILTERS, WARMUP_MODE
-from history import load_sent_deals, save_sent_deals
+from history import load_sent_deals, save_sent_deals, get_current_warmup_prob, record_warmup_result
 from scraper import fetch_latest_deals, fetch_direct_product_link, fetch_deal_details, is_monetizable_deal
 from link_helper import get_product_link, is_toss_deal
 from copywriter import format_post, format_threads_post
@@ -72,14 +72,19 @@ def run_pipeline(sent_deals: set, last_post_time: float = 0.0, force: bool = Fal
         if os.getenv('GITHUB_ACTIONS') == 'true':
             is_workflow_dispatch = os.getenv('GITHUB_EVENT_NAME') == 'workflow_dispatch'
             if not force_run and not is_workflow_dispatch:
-                # 일반 스케줄 크론 실행 시에만 15% 확률 적용 (인간다움을 위한 랜덤 스킵)
+                # 동적 누적 확률(미발행 시 이전 확률의 50% 가산) 적용
                 import random
-                if random.random() > 0.15:
-                    print("  🎲 [웜업 모드] 이번 시간은 건너뜁니다. (인간다움을 위한 랜덤 스킵)")
+                current_prob = get_current_warmup_prob()
+                dice = random.random()
+                if dice > current_prob:
+                    applied_p, next_p, skips = record_warmup_result(posted=False)
+                    print(f"  🎲 [웜업 모드] 이번 시간은 건너뜁니다. (적용 확률: {applied_p*100:.1f}% -> 다음 누적 확률: {next_p*100:.1f}%, 연속 {skips}회 스킵)")
                     return 0, last_post_time
+                else:
+                    print(f"  🎯 [웜업 모드] 확률 당첨! (적용 확률: {current_prob*100:.1f}%) 일상글 포스팅을 시작합니다.")
             else:
                 trigger_reason = "수동 실행(workflow_dispatch)" if is_workflow_dispatch else "강제 실행(--force / FORCE_RUN)"
-                print(f"  ⚡ [웜업 모드] {trigger_reason} 감지 -> 랜덤 스킵 없이 즉시 100% 포스팅을 진행합니다.")
+                print(f"  ⚡ [웜업 모드] {trigger_reason} 감지 -> 확률 스킵 없이 즉시 100% 포스팅을 진행합니다.")
         else:
             # 로컬 환경: force_run이 아닐 때만 10시간 고정 간격 적용
             if not force_run:
@@ -95,8 +100,12 @@ def run_pipeline(sent_deals: set, last_post_time: float = 0.0, force: bool = Fal
         daily_text = generate_daily_life_post()
         threads_res = post_to_threads(root_text=daily_text)
         if threads_res.get('success'):
+            applied_p, next_p, _ = record_warmup_result(posted=True)
             print(f"  ✅ [웜업 모드] 일상글 작성 완료: {daily_text}")
-            send_telegram_message(f"✅ <b>[스레드 웜업 성공]</b>\n\n새로운 일상글이 방금 업로드되었습니다!\n\n📝 <b>내용:</b>\n{daily_text}")
+            print(f"  🔄 [웜업 모드] 발행 성공으로 누적 확률이 기본값({next_p*100:.1f}%)으로 초기화되었습니다.")
+            send_telegram_message(
+                f"✅ <b>[스레드 웜업 성공]</b>\n\n새로운 일상글이 방금 업로드되었습니다!\n\n📝 <b>내용:</b>\n{daily_text}\n\n🎲 <b>확률 상태:</b> 기본값({next_p*100:.1f}%)으로 리셋됨"
+            )
             return 1, time.time()
         else:
             print(f"  ❌ [웜업 모드] 일상글 작성 실패")
