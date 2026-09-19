@@ -6,6 +6,12 @@ on:
     # 웜업 모드에서는 매시간 깨어나서 15% 확률로만 랜덤 포스팅합니다.
     - cron: '0 23,0-15 * * *'
   workflow_dispatch: # 깃허브 화면에서 [Run workflow] 버튼 클릭 시 즉시 1회 실행
+    inputs:
+      force_run:
+        description: '스킵 없이 즉시 강제 포스팅 실행 여부'
+        required: false
+        default: 'true'
+        type: boolean
 
 jobs:
   run-bot:
@@ -35,6 +41,8 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           WARMUP_MODE: "true"
           ENABLE_THREADS_POSTING: "true"
+          FORCE_RUN: ${{ inputs.force_run != false && (inputs.force_run || github.event_name == 'workflow_dispatch') && 'true' || 'false' }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: |
           python main.py --once
 

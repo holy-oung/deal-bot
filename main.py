@@ -51,16 +51,18 @@ def is_night_sleep_time() -> bool:
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
-def run_pipeline(sent_deals: set, last_post_time: float = 0.0) -> tuple[int, float]:
+def run_pipeline(sent_deals: set, last_post_time: float = 0.0, force: bool = False) -> tuple[int, float]:
     """새로운 핫딜을 탐색하고 전송하는 1회 주기 실행 함수"""
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    force_run = force or os.getenv('FORCE_RUN', '').lower() in ('true', '1', 'yes')
     
     if WARMUP_MODE:
         print(f"[{now_str}] 🧘 [웜업 모드] 일상글 자동화 구동 중...")
     else:
         print(f"[{now_str}] 핫딜 목록 확인 중...")
     
-    if is_night_sleep_time():
+    if is_night_sleep_time() and not force_run:
         kst_now = (datetime.now(timezone.utc) + timedelta(hours=9)).strftime("%H:%M")
         print(f"  🌙 [심야 취침 모드 ({kst_now} KST)] 유저 반응 골든타임 사장 방지를 위해 대기합니다.")
         return 0, last_post_time
@@ -68,18 +70,26 @@ def run_pipeline(sent_deals: set, last_post_time: float = 0.0) -> tuple[int, flo
     if WARMUP_MODE:
         # 웜업 모드일 때는 핫딜 수집을 건너뛰고 일상글만 업로드합니다.
         if os.getenv('GITHUB_ACTIONS') == 'true':
-            # 클라우드 환경(GitHub Actions): 매시간 크론이 깨우지만, 하루 평균 1~2개만 포스팅하도록 확률(15%) 적용
-            import random
-            if random.random() > 0.15:
-                print("  🎲 [웜업 모드] 이번 시간은 건너뜁니다. (인간다움을 위한 랜덤 스킵)")
-                return 0, last_post_time
+            is_workflow_dispatch = os.getenv('GITHUB_EVENT_NAME') == 'workflow_dispatch'
+            if not force_run and not is_workflow_dispatch:
+                # 일반 스케줄 크론 실행 시에만 15% 확률 적용 (인간다움을 위한 랜덤 스킵)
+                import random
+                if random.random() > 0.15:
+                    print("  🎲 [웜업 모드] 이번 시간은 건너뜁니다. (인간다움을 위한 랜덤 스킵)")
+                    return 0, last_post_time
+            else:
+                trigger_reason = "수동 실행(workflow_dispatch)" if is_workflow_dispatch else "강제 실행(--force / FORCE_RUN)"
+                print(f"  ⚡ [웜업 모드] {trigger_reason} 감지 -> 랜덤 스킵 없이 즉시 100% 포스팅을 진행합니다.")
         else:
-            # 로컬 환경(run_local.bat): 10시간 고정 간격으로 동작
-            elapsed = time.time() - last_post_time
-            WARMUP_INTERVAL = 36000  # 10시간
-            if last_post_time > 0 and elapsed < WARMUP_INTERVAL:
-                print(f"  ⏳ [웜업 모드] 마지막 일상글 작성 후 {int(elapsed/3600)}시간 경과. {int((WARMUP_INTERVAL - elapsed)/3600)}시간 뒤 다음 일상글을 작성합니다.")
-                return 0, last_post_time
+            # 로컬 환경: force_run이 아닐 때만 10시간 고정 간격 적용
+            if not force_run:
+                elapsed = time.time() - last_post_time
+                WARMUP_INTERVAL = 36000  # 10시간
+                if last_post_time > 0 and elapsed < WARMUP_INTERVAL:
+                    print(f"  ⏳ [웜업 모드] 마지막 일상글 작성 후 {int(elapsed/3600)}시간 경과. {int((WARMUP_INTERVAL - elapsed)/3600)}시간 뒤 다음 일상글을 작성합니다.")
+                    return 0, last_post_time
+            else:
+                print("  ⚡ [웜업 모드] 강제 실행 플래그로 쿨타임 없이 즉시 포스팅합니다.")
             
         print("  📝 [웜업 모드] 새로운 일상글을 생성하고 업로드합니다...")
         daily_text = generate_daily_life_post()
@@ -189,6 +199,7 @@ def run_pipeline(sent_deals: set, last_post_time: float = 0.0) -> tuple[int, flo
 def main():
     parser = argparse.ArgumentParser(description="실시간 핫딜 알림 봇")
     parser.add_argument("--once", action="store_true", help="1회만 실행하고 종료")
+    parser.add_argument("--force", action="store_true", help="쿨타임 및 확률 스킵을 무시하고 즉시 강제 실행")
     parser.add_argument("--test", action="store_true", help="가장 최신 핫딜 1건 강제 전송 테스트 (텔레그램 + 스레드)")
     parser.add_argument("--threads-test", action="store_true", help="최신 핫딜 1건 스레드(Threads) 포스팅만 단독 테스트")
     parser.add_argument("--verify-threads", action="store_true", help="Threads API 토큰 및 계정 자격증명 유효성 검사")
@@ -301,12 +312,12 @@ def main():
     threading.Thread(target=start_health_check_server, daemon=True).start()
 
     if args.once:
-        run_pipeline(sent_deals, last_post_time)
+        run_pipeline(sent_deals, last_post_time, force=args.force)
         return
 
     try:
         while True:
-            _, last_post_time = run_pipeline(sent_deals, last_post_time)
+            _, last_post_time = run_pipeline(sent_deals, last_post_time, force=args.force)
             time.sleep(CHECK_INTERVAL_SECONDS)
     except KeyboardInterrupt:
         print("\n[알림] 사용자에 의해 봇이 안전하게 중단되었습니다.")
