@@ -1,123 +1,89 @@
 {
   "metadata": {
-    "last_updated": "2026-10-06T12:53:49.424087+09:00",
+    "last_updated": "2026-10-07T04:09:23.729530+09:00",
     "half_life_days": 14.0,
-    "total_timeline_records": 84,
+    "total_timeline_records": 85,
     "top_emerging_keywords": [
       "오늘",
+      "아직",
+      "시도",
+      "점심",
       "목요일",
       "반은",
       "시계만",
       "분마다",
       "보게",
-      "표정은",
-      "업무",
-      "집중하는",
-      "척인데"
+      "표정은"
     ]
   },
   "hooks": {
-    "FOOD_PROCESSED": [
-      {
-        "hook": "주말에 넷플릭스 보면서 맥주 한잔 곁들일 꿀맛 안주 찾는다면 🍺",
-        "weight": 1.3,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "퇴근하고 밥 차리기 귀찮을 때 배달비 아끼는 치트키 🍜",
-        "weight": 1.12,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "🔥 가격 내려가면 못 참지",
-        "weight": 0.99,
-        "source": "@goodpicknote"
-      },
-      {
-        "hook": "배달앱 켤 때마다 2~3만원씩 깨지는데 이럴 때 냉동실 채워둬야 함 🥟",
-        "weight": 0.7,
-        "source": "seed_baseline"
-      }
-    ],
-    "HOME_APPLIANCE": [
-      {
-        "hook": "이 가격에 이 기능이면 진작 살 걸 그랬음... 가성비 종결 🔥",
-        "weight": 0.8,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "퇴근 후 집안일 시간 확 줄여주는 삶의 질 상승 가전 🏠",
-        "weight": 0.7,
-        "source": "seed_baseline"
-      }
-    ],
-    "FOOD_FRESH": [
-      {
-        "hook": "오운완 후 단백질 채워둘 식단 비상식량 최저가 떴음 🍗",
-        "weight": 1.44,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "운동하는 사람 손!! 식단 나랑 같이하자 💪",
-        "weight": 0.8,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "요즘 장바구니 과일 물가 살벌한데 마트 반값 수준으로 풀림 🍎",
-        "weight": 0.6,
-        "source": "seed_baseline"
-      }
-    ],
     "GENERAL": [
       {
         "hook": "금요일 밤 10시에 씻고 누워서 넷플릭스 보는 이 시간이 일주일 중 제일 행복함. 내일 알람 안 맞춰도 된다는 게 진짜 락이다 🫠",
-        "weight": 4.53,
+        "weight": 4.39,
         "source": "@my_threads_top"
       },
       {
         "hook": "주말엔 침대랑 한 몸 되는 게 국룰이지.. 오늘 아무것도 안 할 거임 ㅋㅋㅋ",
-        "weight": 4.21,
+        "weight": 4.08,
         "source": "@my_threads_top"
       },
       {
         "hook": "목요일 5시 반은 진짜 시계만 5분마다 보게 됨 🫠 표정은 업무 집중하는 척인데 영혼은 이미 퇴근했다.",
-        "weight": 4.19,
+        "weight": 4.06,
         "source": "@my_threads_top"
       },
       {
         "hook": "출근해서 메일 몇 개 확인했더니 벌써 기 다 빠졌는데 아직 11시도 안 됐다니... 오늘 점심 진짜 맛있는 거 먹어야겠음 🥱",
-        "weight": 3.97,
+        "weight": 4.03,
         "source": "@my_threads_top"
       },
       {
         "hook": "일요일 오전 10시에 눈떠서 이불 속에서 뒹굴거리는 이 시간이 제일 행복함... 오늘 아점은 또 뭘 시켜 먹어야 잘 먹었다고 소문이 날까 🥱",
-        "weight": 3.83,
+        "weight": 3.71,
         "source": "@my_threads_top"
       },
       {
         "hook": "날씨 너무 좋아서 카페나 슬슬 마실 나가볼까 고민 중 🌿",
-        "weight": 3.74,
+        "weight": 3.63,
         "source": "@my_threads_top"
       },
       {
         "hook": "아직 수요일 오전 11시도 안 됐다는 게 안 믿긴다... 슬슬 영혼 탈곡되고 점심 메뉴만 생각남 🫠",
-        "weight": 2.82,
+        "weight": 2.73,
         "source": "@my_threads_top"
       },
       {
         "hook": "쿠파스로 10만 원도 못벌면 당장 따라해라.",
-        "weight": 2.71,
+        "weight": 2.62,
         "source": "@bang100_e"
       },
       {
         "hook": "사람들이 자주 겪는 불편함 하나를 먼저 찾아라.",
-        "weight": 2.71,
+        "weight": 2.62,
         "source": "@bang100_e"
       },
       {
         "hook": "월요일 5시 넘어가니까 진짜 뇌가 일을 거부하네... 35분 뒤 칼퇴만 바라보는 중 🫠",
-        "weight": 2.37,
+        "weight": 2.29,
         "source": "@my_threads_top"
+      }
+    ],
+    "KIDS": [
+      {
+        "hook": "🍳 매일 뭐 먹지? 여기서 골라요",
+        "weight": 0.88,
+        "source": "@goodpicknote"
+      },
+      {
+        "hook": "애들은 금방 쑥쑥 커서 옷 제값 다 주고 사면 제일 아까움 👶",
+        "weight": 0.8,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "브랜드 키즈 의류가 보세 옷보다 싸게 풀린 거 실화인가 👀",
+        "weight": 0.7,
+        "source": "seed_baseline"
       }
     ],
     "SHOES": [
@@ -137,10 +103,83 @@
         "source": "seed_baseline"
       }
     ],
+    "LIVING": [
+      {
+        "hook": "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
+        "weight": 1.15,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼",
+        "weight": 0.8,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "요즘 러닝·헬스하느라 땀 많이 날 텐데 땀냄새 싹 지우려면 이거 써야 함 🧼",
+        "weight": 0.7,
+        "source": "seed_baseline"
+      }
+    ],
+    "FOOD_PROCESSED": [
+      {
+        "hook": "주말에 넷플릭스 보면서 맥주 한잔 곁들일 꿀맛 안주 찾는다면 🍺",
+        "weight": 1.26,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "퇴근하고 밥 차리기 귀찮을 때 배달비 아끼는 치트키 🍜",
+        "weight": 1.09,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "🔥 가격 내려가면 못 참지",
+        "weight": 0.96,
+        "source": "@goodpicknote"
+      },
+      {
+        "hook": "배달앱 켤 때마다 2~3만원씩 깨지는데 이럴 때 냉동실 채워둬야 함 🥟",
+        "weight": 0.7,
+        "source": "seed_baseline"
+      }
+    ],
+    "BEVERAGE_SNACK": [
+      {
+        "hook": "내가 잘될 거라는 전제로 하루를 시작하는 것",
+        "weight": 1.07,
+        "source": "@bang100_e"
+      },
+      {
+        "hook": "하루 커피 2잔씩 마시는데 매달 커피값 10만원씩 깨지는 사람? ☕",
+        "weight": 0.8,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "운동 끝나고 시원하게 마실 제로 음료 박스로 채워둘 타이밍 🧊",
+        "weight": 0.7,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "물·음료 떨어질 때마다 무겁게 들고 오지 말고 박스로 쟁여둘 타이밍 🧃",
+        "weight": 0.6,
+        "source": "seed_baseline"
+      }
+    ],
+    "HOME_APPLIANCE": [
+      {
+        "hook": "이 가격에 이 기능이면 진작 살 걸 그랬음... 가성비 종결 🔥",
+        "weight": 0.8,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "퇴근 후 집안일 시간 확 줄여주는 삶의 질 상승 가전 🏠",
+        "weight": 0.7,
+        "source": "seed_baseline"
+      }
+    ],
     "DIGITAL_TECH": [
       {
         "hook": "금요일 오후 4시 넘어가니까 영혼은 이미 집에 가 있네요. 다들 모니터만 켜두고 슬슬 퇴근 시뮬레이션 돌리고 계시죠? 🫠",
-        "weight": 3.54,
+        "weight": 3.43,
         "source": "@my_threads_top"
       },
       {
@@ -159,49 +198,32 @@
         "source": "seed_baseline"
       }
     ],
-    "LIVING": [
-      {
-        "hook": "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
-        "weight": 1.18,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼",
-        "weight": 0.8,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "요즘 러닝·헬스하느라 땀 많이 날 텐데 땀냄새 싹 지우려면 이거 써야 함 🧼",
-        "weight": 0.7,
-        "source": "seed_baseline"
-      }
-    ],
     "FASHION": [
       {
         "hook": "요즘 유행하는 고프코어/러닝용으로 편하게 입을 기본템 찾는다면 👕",
-        "weight": 1.31,
+        "weight": 1.27,
         "source": "@my_threads_top"
       },
       {
         "hook": "백화점 브랜드 옷 정가 다 주고 사면 바보 되는 이유 👀",
-        "weight": 1.29,
+        "weight": 1.25,
         "source": "@my_threads_top"
       }
     ],
-    "KIDS": [
+    "FOOD_FRESH": [
       {
-        "hook": "🍳 매일 뭐 먹지? 여기서 골라요",
-        "weight": 0.91,
-        "source": "@goodpicknote"
+        "hook": "오운완 후 단백질 채워둘 식단 비상식량 최저가 떴음 🍗",
+        "weight": 1.4,
+        "source": "@my_threads_top"
       },
       {
-        "hook": "애들은 금방 쑥쑥 커서 옷 제값 다 주고 사면 제일 아까움 👶",
+        "hook": "운동하는 사람 손!! 식단 나랑 같이하자 💪",
         "weight": 0.8,
         "source": "seed_baseline"
       },
       {
-        "hook": "브랜드 키즈 의류가 보세 옷보다 싸게 풀린 거 실화인가 👀",
-        "weight": 0.7,
+        "hook": "요즘 장바구니 과일 물가 살벌한데 마트 반값 수준으로 풀림 🍎",
+        "weight": 0.6,
         "source": "seed_baseline"
       }
     ],
@@ -214,28 +236,6 @@
       {
         "hook": "야외 러닝이나 운동하고 자외선에 지친 피부 진정시킬 타이밍 🧴",
         "weight": 0.7,
-        "source": "seed_baseline"
-      }
-    ],
-    "BEVERAGE_SNACK": [
-      {
-        "hook": "내가 잘될 거라는 전제로 하루를 시작하는 것",
-        "weight": 1.11,
-        "source": "@bang100_e"
-      },
-      {
-        "hook": "하루 커피 2잔씩 마시는데 매달 커피값 10만원씩 깨지는 사람? ☕",
-        "weight": 0.8,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "운동 끝나고 시원하게 마실 제로 음료 박스로 채워둘 타이밍 🧊",
-        "weight": 0.7,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "물·음료 떨어질 때마다 무겁게 들고 오지 말고 박스로 쟁여둘 타이밍 🧃",
-        "weight": 0.6,
         "source": "seed_baseline"
       }
     ]
