@@ -1,19 +1,19 @@
 {
   "metadata": {
-    "last_updated": "2026-10-23T11:35:28.727486+09:00",
+    "last_updated": "2026-10-24T03:00:07.662844+09:00",
     "half_life_days": 14.0,
-    "total_timeline_records": 134,
+    "total_timeline_records": 137,
     "top_emerging_keywords": [
       "시간",
       "먹고",
       "침대에서",
       "벌써",
-      "이렇게",
-      "가냐",
       "오늘",
       "점심은",
       "무조건",
-      "오후"
+      "이렇게",
+      "가냐",
+      "제육이다"
     ]
   },
   "hooks": {
@@ -25,18 +25,64 @@
       },
       {
         "hook": "주말에 넷플릭스 보면서 맥주 한잔 곁들일 꿀맛 안주 찾는다면 🍺",
-        "weight": 0.56,
+        "weight": 0.55,
         "source": "@my_threads_top"
       },
       {
         "hook": "퇴근하고 밥 차리기 귀찮을 때 배달비 아끼는 치트키 🍜",
-        "weight": 0.48,
+        "weight": 0.47,
         "source": "@my_threads_top"
       },
       {
         "hook": "🔥 가격 내려가면 못 참지",
-        "weight": 0.43,
+        "weight": 0.41,
         "source": "@goodpicknote"
+      }
+    ],
+    "FASHION": [
+      {
+        "hook": "요즘 유행하는 고프코어/러닝용으로 편하게 입을 기본템 찾는다면 👕",
+        "weight": 0.55,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "백화점 브랜드 옷 정가 다 주고 사면 바보 되는 이유 👀",
+        "weight": 0.54,
+        "source": "@my_threads_top"
+      }
+    ],
+    "KIDS": [
+      {
+        "hook": "애들은 금방 쑥쑥 커서 옷 제값 다 주고 사면 제일 아까움 👶",
+        "weight": 0.8,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "브랜드 키즈 의류가 보세 옷보다 싸게 풀린 거 실화인가 👀",
+        "weight": 0.7,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "🍳 매일 뭐 먹지? 여기서 골라요",
+        "weight": 0.38,
+        "source": "@goodpicknote"
+      }
+    ],
+    "LIVING": [
+      {
+        "hook": "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼",
+        "weight": 0.8,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "요즘 러닝·헬스하느라 땀 많이 날 텐데 땀냄새 싹 지우려면 이거 써야 함 🧼",
+        "weight": 0.7,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
+        "weight": 0.49,
+        "source": "@my_threads_top"
       }
     ],
     "BEAUTY": [
@@ -49,58 +95,6 @@
         "hook": "야외 러닝이나 운동하고 자외선에 지친 피부 진정시킬 타이밍 🧴",
         "weight": 0.7,
         "source": "seed_baseline"
-      }
-    ],
-    "GENERAL": [
-      {
-        "hook": "오늘 점심은 무조건 제육이다. 직장인 점심메뉴 국룰 인정? ㅋㅋ",
-        "weight": 5.22,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "낮에 배달시켜 먹고 침대에서 뒹굴거린 게 전부인데 벌써 7시 반 넘은 거 실화냐... 내 주말 도대체 어디로 증발한 건지 아시는 분 🫠",
-        "weight": 4.41,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "밥 먹고 침대에서 폰 좀 봤는데 벌써 4시가 다 돼가네. 토요일 시간 흐르는 속도 진짜 양심 없다 🫠",
-        "weight": 4.04,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "퇴근 마렵다.. 시간 왜 이렇게 안 가냐 시계 고장난 거 아님? ⏰",
-        "weight": 3.12,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "출근해서 아침 업무 좀 쳐냈더니 이제 겨우 목요일 10시 20분인 게 안 믿긴다... 오늘 점심은 무조건 맛있는 거 먹어야지 🫠",
-        "weight": 3.04,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "화요일 오전 10시 반이 제일 시간 안 가는 거 진짜 실화인가... 영혼은 이미 퇴근했고 손가락만 점심 메뉴 검색하고 있음 🫠",
-        "weight": 3.04,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "밥 먹고 나니까 식곤증 장난 아니네.. 퇴근 마렵다 😪",
-        "weight": 2.92,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "눈뜨니까 벌써 11시 넘었는데 침대 밖으로 나가기가 싫네. 오늘 첫 끼로 배달 뭐 시켜 먹을지 추천 좀 해주라 🍕",
-        "weight": 2.85,
-        "source": "@my_threads_top"
-      },
-      {
-        "hook": "처음 시작하는 사람은",
-        "weight": 2.71,
-        "source": "@goodpicknote"
-      },
-      {
-        "hook": "블로그로 제2인생 살고 있습니다.",
-        "weight": 2.71,
-        "source": "@jaeha.house"
       }
     ],
     "SHOES": [
@@ -120,73 +114,62 @@
         "source": "seed_baseline"
       }
     ],
-    "HOME_APPLIANCE": [
+    "GENERAL": [
       {
-        "hook": "이 가격에 이 기능이면 진작 살 걸 그랬음... 가성비 종결 🔥",
-        "weight": 0.8,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "퇴근 후 집안일 시간 확 줄여주는 삶의 질 상승 가전 🏠",
-        "weight": 0.7,
-        "source": "seed_baseline"
-      }
-    ],
-    "FASHION": [
-      {
-        "hook": "요즘 유행하는 고프코어/러닝용으로 편하게 입을 기본템 찾는다면 👕",
-        "weight": 0.57,
+        "hook": "오늘 점심은 무조건 제육이다. 직장인 점심메뉴 국룰 인정? ㅋㅋ",
+        "weight": 5.31,
         "source": "@my_threads_top"
       },
       {
-        "hook": "백화점 브랜드 옷 정가 다 주고 사면 바보 되는 이유 👀",
-        "weight": 0.56,
-        "source": "@my_threads_top"
-      }
-    ],
-    "DIGITAL_TECH": [
-      {
-        "hook": "금요일 오후 4시 넘어가니까 영혼은 이미 집에 가 있네요. 다들 모니터만 켜두고 슬슬 퇴근 시뮬레이션 돌리고 계시죠? 🫠",
-        "weight": 1.53,
+        "hook": "낮에 배달시켜 먹고 침대에서 뒹굴거린 게 전부인데 벌써 7시 반 넘은 거 실화냐... 내 주말 도대체 어디로 증발한 건지 아시는 분 🫠",
+        "weight": 4.27,
         "source": "@my_threads_top"
       },
       {
-        "hook": "충전독까지 주는 무선 헤드셋인데 이 가격이면 담당자 실수인 듯 🫢",
-        "weight": 0.8,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "요즘 배그나 발로란트 할 때 사플 안 돼서 답답했던 사람? 🎧",
-        "weight": 0.7,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "게임할 때 선 걸리적거리고 충전 깜빡해서 꺼진 적 다들 있지? 🎧",
-        "weight": 0.6,
-        "source": "seed_baseline"
-      }
-    ],
-    "FOOD_FRESH": [
-      {
-        "hook": "운동하는 사람 손!! 식단 나랑 같이하자 💪",
-        "weight": 0.8,
-        "source": "seed_baseline"
-      },
-      {
-        "hook": "오운완 후 단백질 채워둘 식단 비상식량 최저가 떴음 🍗",
-        "weight": 0.62,
+        "hook": "밥 먹고 침대에서 폰 좀 봤는데 벌써 4시가 다 돼가네. 토요일 시간 흐르는 속도 진짜 양심 없다 🫠",
+        "weight": 3.92,
         "source": "@my_threads_top"
       },
       {
-        "hook": "요즘 장바구니 과일 물가 살벌한데 마트 반값 수준으로 풀림 🍎",
-        "weight": 0.6,
-        "source": "seed_baseline"
+        "hook": "출근해서 아침 업무 좀 쳐냈더니 이제 겨우 목요일 10시 20분인 게 안 믿긴다... 오늘 점심은 무조건 맛있는 거 먹어야지 🫠",
+        "weight": 3.09,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "퇴근 마렵다.. 시간 왜 이렇게 안 가냐 시계 고장난 거 아님? ⏰",
+        "weight": 3.02,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "화요일 오전 10시 반이 제일 시간 안 가는 거 진짜 실화인가... 영혼은 이미 퇴근했고 손가락만 점심 메뉴 검색하고 있음 🫠",
+        "weight": 2.94,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "밥 먹고 나니까 식곤증 장난 아니네.. 퇴근 마렵다 😪",
+        "weight": 2.83,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "눈뜨니까 벌써 11시 넘었는데 침대 밖으로 나가기가 싫네. 오늘 첫 끼로 배달 뭐 시켜 먹을지 추천 좀 해주라 🍕",
+        "weight": 2.76,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "처음 시작하는 사람은",
+        "weight": 2.62,
+        "source": "@goodpicknote"
+      },
+      {
+        "hook": "블로그로 제2인생 살고 있습니다.",
+        "weight": 2.62,
+        "source": "@jaeha.house"
       }
     ],
     "BEVERAGE_SNACK": [
       {
         "hook": "오후 되니까 당 떨어지네.. 아이스 아메리카노 하나 때려야겠다 ☕",
-        "weight": 3.09,
+        "weight": 3.0,
         "source": "@my_threads_top"
       },
       {
@@ -206,42 +189,64 @@
       },
       {
         "hook": "내가 잘될 거라는 전제로 하루를 시작하는 것",
-        "weight": 0.48,
+        "weight": 0.46,
         "source": "@bang100_e"
       }
     ],
-    "KIDS": [
+    "FOOD_FRESH": [
       {
-        "hook": "애들은 금방 쑥쑥 커서 옷 제값 다 주고 사면 제일 아까움 👶",
+        "hook": "운동하는 사람 손!! 식단 나랑 같이하자 💪",
         "weight": 0.8,
         "source": "seed_baseline"
       },
       {
-        "hook": "브랜드 키즈 의류가 보세 옷보다 싸게 풀린 거 실화인가 👀",
-        "weight": 0.7,
-        "source": "seed_baseline"
+        "hook": "오운완 후 단백질 채워둘 식단 비상식량 최저가 떴음 🍗",
+        "weight": 0.6,
+        "source": "@my_threads_top"
       },
       {
-        "hook": "🍳 매일 뭐 먹지? 여기서 골라요",
-        "weight": 0.39,
-        "source": "@goodpicknote"
+        "hook": "요즘 장바구니 과일 물가 살벌한데 마트 반값 수준으로 풀림 🍎",
+        "weight": 0.6,
+        "source": "seed_baseline"
       }
     ],
-    "LIVING": [
+    "DIGITAL_TECH": [
       {
-        "hook": "단가 계산기 두드려봤더니 마트/다이소 반값도 안 나옴 🧼",
+        "hook": "금요일 4시 넘어가니까 마우스 잡은 손에 힘 다 빠지고 영혼은 이미 퇴근했음... 🫠 지금부터는 그냥 모니터 멍하게 보면서 버티는 시간이다.",
+        "weight": 3.09,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "금요일 오후 4시 넘어가니까 영혼은 이미 집에 가 있네요. 다들 모니터만 켜두고 슬슬 퇴근 시뮬레이션 돌리고 계시죠? 🫠",
+        "weight": 1.48,
+        "source": "@my_threads_top"
+      },
+      {
+        "hook": "충전독까지 주는 무선 헤드셋인데 이 가격이면 담당자 실수인 듯 🫢",
         "weight": 0.8,
         "source": "seed_baseline"
       },
       {
-        "hook": "요즘 러닝·헬스하느라 땀 많이 날 텐데 땀냄새 싹 지우려면 이거 써야 함 🧼",
+        "hook": "요즘 배그나 발로란트 할 때 사플 안 돼서 답답했던 사람? 🎧",
         "weight": 0.7,
         "source": "seed_baseline"
       },
       {
-        "hook": "어차피 매달 쓰는 건데 마트 가서 제값 다 주면 제일 속 쓰린 생필품 🧻",
-        "weight": 0.51,
-        "source": "@my_threads_top"
+        "hook": "게임할 때 선 걸리적거리고 충전 깜빡해서 꺼진 적 다들 있지? 🎧",
+        "weight": 0.6,
+        "source": "seed_baseline"
+      }
+    ],
+    "HOME_APPLIANCE": [
+      {
+        "hook": "이 가격에 이 기능이면 진작 살 걸 그랬음... 가성비 종결 🔥",
+        "weight": 0.8,
+        "source": "seed_baseline"
+      },
+      {
+        "hook": "퇴근 후 집안일 시간 확 줄여주는 삶의 질 상승 가전 🏠",
+        "weight": 0.7,
+        "source": "seed_baseline"
       }
     ]
   }
